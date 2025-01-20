@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Tree, Users, Search, Shield } from "lucide-react";
+import { TreePine, Users, Search, ShieldCheck } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ const Index = () => {
 
 const features = [
   {
-    icon: <Tree className="w-6 h-6 text-primary" />,
+    icon: <TreePine className="w-6 h-6 text-primary" />,
     title: "Build Your Tree",
     description: "Create and visualize your family connections with our intuitive tree builder.",
   },
@@ -109,7 +109,7 @@ const features = [
     description: "Link your tree with other Konkani families and discover new connections.",
   },
   {
-    icon: <Shield className="w-6 h-6 text-primary" />,
+    icon: <ShieldCheck className="w-6 h-6 text-primary" />,
     title: "Verify Members",
     description: "Ensure accuracy with our member verification system.",
   },
