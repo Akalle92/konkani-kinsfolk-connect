@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,16 +24,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from '@/contexts/AuthContext';
 
 const Trees = () => {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newTreeName, setNewTreeName] = useState('');
   const [newTreeDescription, setNewTreeDescription] = useState('');
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+  }, [user, navigate]);
 
   // Fetch trees
   const { data: trees, isLoading } = useQuery({
@@ -46,18 +53,21 @@ const Trees = () => {
       if (error) throw error;
       return data;
     },
+    enabled: !!user,
   });
 
   // Create tree mutation
   const createTreeMutation = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
       const { data, error } = await supabase
         .from('family_trees')
         .insert([
           {
             name: newTreeName,
             description: newTreeDescription,
-            owner_id: user?.id,
+            owner_id: user.id,
           },
         ])
         .select()
@@ -126,6 +136,10 @@ const Trees = () => {
     createTreeMutation.mutate();
   };
 
+  if (!user) {
+    return null; // Will redirect in useEffect
+  }
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
@@ -137,7 +151,12 @@ const Trees = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-playfair">My Family Trees</h1>
+        <div>
+          <h1 className="text-3xl font-playfair">My Family Trees</h1>
+          {userRole?.role === 'admin' && (
+            <p className="text-sm text-muted-foreground">Admin Access</p>
+          )}
+        </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary">
@@ -203,7 +222,7 @@ const Trees = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-500">
-                Created: {new Date(tree.created_at).toLocaleDateString()}
+                Created: {new Date(tree.created_at || '').toLocaleDateString()}
               </p>
             </CardContent>
             <CardFooter className="flex justify-end space-x-2 mt-auto">
