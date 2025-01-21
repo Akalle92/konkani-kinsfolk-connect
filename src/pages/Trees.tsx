@@ -232,7 +232,7 @@ const Trees = () => {
                 onClick={() => navigate(`/trees/${tree.id}`)}
               >
                 <Pencil className="h-4 w-4 mr-2" />
-                Edit
+                View & Edit
               </Button>
               <Button
                 variant="destructive"
