@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
@@ -18,6 +20,7 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
       if (isLogin) {
@@ -30,16 +33,21 @@ const Auth = () => {
         await signUp(email, password);
         toast({
           title: "Welcome!",
-          description: "Your account has been created successfully.",
+          description: "Your account has been created successfully. Please check your email for verification.",
         });
       }
       navigate("/");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
-      });
+      const message = error instanceof Error ? error.message : "An error occurred";
+      let userFriendlyMessage = message;
+      
+      if (message.includes("invalid_credentials")) {
+        userFriendlyMessage = isLogin 
+          ? "Invalid email or password. Please try again or sign up if you don't have an account."
+          : "Unable to create account. Please try again with different credentials.";
+      }
+      
+      setError(userFriendlyMessage);
     } finally {
       setLoading(false);
     }
@@ -51,6 +59,13 @@ const Auth = () => {
         <h2 className="text-3xl font-playfair font-bold text-center mb-8">
           {isLogin ? "Welcome Back" : "Create Account"}
         </h2>
+        
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -72,6 +87,7 @@ const Auth = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
           <Button
@@ -85,7 +101,10 @@ const Auth = () => {
         <div className="mt-6 text-center">
           <button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError("");
+            }}
             className="text-primary hover:underline"
           >
             {isLogin
