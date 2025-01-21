@@ -15,7 +15,7 @@ const Auth = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, userRole } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,14 +26,14 @@ const Auth = () => {
       if (isLogin) {
         await signIn(email, password);
         toast({
-          title: "Welcome back!",
+          title: `Welcome back${userRole?.role === 'admin' ? ' Admin' : ''}!`,
           description: "You have successfully logged in.",
         });
       } else {
         await signUp(email, password);
         toast({
           title: "Welcome!",
-          description: "Your account has been created successfully. Please check your email for verification.",
+          description: "Your account has been created successfully.",
         });
       }
       navigate("/");
@@ -45,6 +45,8 @@ const Auth = () => {
         userFriendlyMessage = isLogin 
           ? "Invalid email or password. Please try again or sign up if you don't have an account."
           : "Unable to create account. Please try again with different credentials.";
+      } else if (message.includes("Email not confirmed")) {
+        userFriendlyMessage = "Please check your email for a confirmation link. If you haven't received it, try signing up again.";
       }
       
       setError(userFriendlyMessage);
