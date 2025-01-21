@@ -9,6 +9,8 @@ import { AddRelationshipDialog } from "@/components/family-tree/AddRelationshipD
 import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
 import { MembersList } from "@/components/family-tree/MembersList";
 
+type RelationshipType = "parent" | "child" | "spouse" | "sibling";
+
 const TreeView = () => {
   const { id: treeId } = useParams();
   const { user } = useAuth();
@@ -134,7 +136,7 @@ const TreeView = () => {
     mutationFn: async (newRelationship: {
       person1Id: string;
       person2Id: string;
-      type: string;
+      type: RelationshipType;
     }) => {
       const { data, error } = await supabase
         .from("relationships")

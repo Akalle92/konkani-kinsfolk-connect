@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
+type RelationshipType = "parent" | "child" | "spouse" | "sibling";
+
 interface FamilyMember {
   id: string;
   first_name: string;
@@ -30,7 +32,7 @@ interface AddRelationshipDialogProps {
   onAddRelationship: (relationship: {
     person1Id: string;
     person2Id: string;
-    type: string;
+    type: RelationshipType;
   }) => void;
   isLoading: boolean;
 }
@@ -45,7 +47,7 @@ export function AddRelationshipDialog({
   const [relationship, setRelationship] = useState({
     person1Id: "",
     person2Id: "",
-    type: "",
+    type: "" as RelationshipType,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,7 +73,7 @@ export function AddRelationshipDialog({
     setRelationship({
       person1Id: "",
       person2Id: "",
-      type: "",
+      type: "" as RelationshipType,
     });
   };
 
@@ -115,7 +117,7 @@ export function AddRelationshipDialog({
             <Label htmlFor="relationshipType">Relationship Type</Label>
             <Select
               value={relationship.type}
-              onValueChange={(value) =>
+              onValueChange={(value: RelationshipType) =>
                 setRelationship({ ...relationship, type: value })
               }
             >
