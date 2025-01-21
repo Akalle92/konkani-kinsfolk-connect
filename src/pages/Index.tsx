@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { TreePine, Users, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -64,10 +64,16 @@ const Index = () => {
               Discover and preserve your family's history through our interactive family tree platform. Connect with relatives, share stories, and build your family's legacy.
             </p>
             <div className="space-x-4">
-              <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg" onClick={() => navigate("/register")}>
-                Start Your Family Tree
-              </Button>
-              <Button variant="outline" className="px-8 py-6 text-lg" onClick={() => navigate("/explore")}>
+              {user ? (
+                <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg" onClick={() => navigate("/trees")}>
+                  View My Trees
+                </Button>
+              ) : (
+                <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg" onClick={() => navigate("/auth")}>
+                  Start Your Family Tree
+                </Button>
+              )}
+              <Button variant="outline" className="px-8 py-6 text-lg" onClick={() => navigate(user ? "/trees" : "/auth")}>
                 Explore Trees
               </Button>
             </div>
