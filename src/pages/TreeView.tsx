@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import ForceGraph2D from 'react-force-graph-2d';
 import { Plus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +28,26 @@ interface FamilyMember {
   gender: string | null;
   photo_url: string | null;
   notes: string | null;
+}
+
+interface Relationship {
+  id: string;
+  person1_id: string;
+  person2_id: string;
+  relationship_type: string;
+}
+
+interface GraphData {
+  nodes: Array<{
+    id: string;
+    name: string;
+    color?: string;
+  }>;
+  links: Array<{
+    source: string;
+    target: string;
+    type: string;
+  }>;
 }
 
 const TreeView = () => {
@@ -73,6 +94,42 @@ const TreeView = () => {
     },
     enabled: !!treeId,
   });
+
+  // Fetch relationships
+  const { data: relationships } = useQuery({
+    queryKey: ['relationships', treeId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('relationships')
+        .select('*')
+        .eq('tree_id', treeId);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!treeId,
+  });
+
+  // Prepare graph data
+  const graphData = useMemo(() => {
+    if (!members || !relationships) return { nodes: [], links: [] };
+
+    const nodes = members.map(member => ({
+      id: member.id,
+      name: `${member.first_name} ${member.last_name}`,
+      color: member.gender === 'Male' ? '#7393B3' : 
+             member.gender === 'Female' ? '#E6A8D7' : 
+             '#A9A9A9',
+    }));
+
+    const links = relationships.map(rel => ({
+      source: rel.person1_id,
+      target: rel.person2_id,
+      type: rel.relationship_type,
+    }));
+
+    return { nodes, links };
+  }, [members, relationships]);
 
   // Add family member mutation
   const addMemberMutation = useMutation({
@@ -216,7 +273,28 @@ const TreeView = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white">
+        <ForceGraph2D
+          graphData={graphData}
+          nodeLabel="name"
+          nodeColor={node => node.color}
+          linkLabel={link => link.type}
+          nodeCanvasObject={(node, ctx, globalScale) => {
+            const label = node.name;
+            const fontSize = 16/globalScale;
+            ctx.font = `${fontSize}px Inter`;
+            ctx.fillStyle = node.color;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI, false);
+            ctx.fill();
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, node.x, node.y + 15);
+          }}
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {members?.map((member) => (
           <div
             key={member.id}
