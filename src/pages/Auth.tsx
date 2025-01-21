@@ -36,7 +36,7 @@ const Auth = () => {
           description: "Your account has been created successfully.",
         });
       }
-      navigate("/");
+      navigate("/trees");
     } catch (error) {
       const message = error instanceof Error ? error.message : "An error occurred";
       let userFriendlyMessage = message;
@@ -50,6 +50,11 @@ const Auth = () => {
       }
       
       setError(userFriendlyMessage);
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: userFriendlyMessage,
+      });
     } finally {
       setLoading(false);
     }
