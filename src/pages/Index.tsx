@@ -1,9 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { TreePine, Users, Search, ShieldCheck } from "lucide-react";
+import { TreePine, Users, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-accent">
@@ -11,12 +31,25 @@ const Index = () => {
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-playfair text-white">Konkani Family Tree</h1>
           <div className="space-x-4">
-            <Button variant="ghost" className="text-white hover:text-secondary" onClick={() => navigate("/login")}>
-              Login
-            </Button>
-            <Button className="bg-secondary text-black hover:bg-secondary/90" onClick={() => navigate("/register")}>
-              Sign Up
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" className="text-white hover:text-secondary" onClick={() => navigate("/trees")}>
+                  My Trees
+                </Button>
+                <Button className="bg-secondary text-black hover:bg-secondary/90" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" className="text-white hover:text-secondary" onClick={() => navigate("/auth")}>
+                  Login
+                </Button>
+                <Button className="bg-secondary text-black hover:bg-secondary/90" onClick={() => navigate("/auth")}>
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </nav>

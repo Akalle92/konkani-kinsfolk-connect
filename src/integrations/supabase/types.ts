@@ -9,7 +9,135 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      family_members: {
+        Row: {
+          birth_date: string | null
+          birth_place: string | null
+          created_at: string | null
+          death_date: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          notes: string | null
+          photo_url: string | null
+          tree_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          birth_place?: string | null
+          created_at?: string | null
+          death_date?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          photo_url?: string | null
+          tree_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          birth_place?: string | null
+          created_at?: string | null
+          death_date?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          photo_url?: string | null
+          tree_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_tree_id_fkey"
+            columns: ["tree_id"]
+            isOneToOne: false
+            referencedRelation: "family_trees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_trees: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      relationships: {
+        Row: {
+          created_at: string | null
+          id: string
+          person1_id: string
+          person2_id: string
+          relationship_type: Database["public"]["Enums"]["relationship_type"]
+          tree_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          person1_id: string
+          person2_id: string
+          relationship_type: Database["public"]["Enums"]["relationship_type"]
+          tree_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          person1_id?: string
+          person2_id?: string
+          relationship_type?: Database["public"]["Enums"]["relationship_type"]
+          tree_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "relationships_person1_id_fkey"
+            columns: ["person1_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "relationships_person2_id_fkey"
+            columns: ["person2_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "relationships_tree_id_fkey"
+            columns: ["tree_id"]
+            isOneToOne: false
+            referencedRelation: "family_trees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +146,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      relationship_type: "parent" | "child" | "spouse" | "sibling"
     }
     CompositeTypes: {
       [_ in never]: never
