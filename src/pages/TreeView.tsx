@@ -19,19 +19,19 @@ const TreeView = () => {
 
   const handleAddMember = async (memberData: any) => {
     const result = await addMemberMutation.mutateAsync({
-      firstName: memberData.firstName,
-      lastName: memberData.lastName,
-      birthDate: memberData.birthDate,
-      birthPlace: memberData.birthPlace,
+      first_name: memberData.firstName,
+      last_name: memberData.lastName,
+      birth_date: memberData.birthDate,
+      birth_place: memberData.birthPlace,
       gender: memberData.gender,
-      photoUrl: memberData.photoUrl,
+      photo_url: memberData.photoUrl,
     });
 
     if (memberData.relationshipType && memberData.relatedMemberId) {
       await addRelationshipMutation.mutateAsync({
-        person1Id: memberData.relatedMemberId,
-        person2Id: result.id,
-        type: memberData.relationshipType,
+        person1_id: memberData.relatedMemberId,
+        person2_id: result.id,
+        relationship_type: memberData.relationshipType,
       });
     }
   };
@@ -72,11 +72,7 @@ const TreeView = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => navigate("/trees")}
-        >
+        <Button variant="outline" size="icon" onClick={() => navigate("/trees")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-3xl font-playfair">{tree.name}</h1>
@@ -99,6 +95,6 @@ const TreeView = () => {
       </div>
     </div>
   );
-}
+};
 
 export default TreeView;
