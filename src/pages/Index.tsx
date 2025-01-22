@@ -27,6 +27,18 @@ const Index = () => {
     }
   };
 
+  const handleTreesNavigation = () => {
+    if (user) {
+      navigate("/trees");
+    } else {
+      navigate("/auth");
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to view or create family trees.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-accent">
       <nav className="bg-primary p-4">
@@ -35,19 +47,33 @@ const Index = () => {
           <div className="space-x-4">
             {user ? (
               <>
-                <Button variant="ghost" className="text-white hover:text-secondary" onClick={() => navigate("/trees")}>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-secondary"
+                  onClick={() => navigate("/trees")}
+                >
                   My Trees
                 </Button>
-                <Button className="bg-secondary text-black hover:bg-secondary/90" onClick={handleSignOut}>
+                <Button 
+                  className="bg-secondary text-black hover:bg-secondary/90"
+                  onClick={handleSignOut}
+                >
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
-                <Button variant="ghost" className="text-white hover:text-secondary" onClick={() => navigate("/auth")}>
+                <Button 
+                  variant="ghost" 
+                  className="text-white hover:text-secondary"
+                  onClick={() => navigate("/auth")}
+                >
                   Login
                 </Button>
-                <Button className="bg-secondary text-black hover:bg-secondary/90" onClick={() => navigate("/auth")}>
+                <Button 
+                  className="bg-secondary text-black hover:bg-secondary/90"
+                  onClick={() => navigate("/auth")}
+                >
                   Sign Up
                 </Button>
               </>
@@ -66,16 +92,17 @@ const Index = () => {
               Discover and preserve your family's history through our interactive family tree platform. Connect with relatives, share stories, and build your family's legacy.
             </p>
             <div className="space-x-4">
-              {user ? (
-                <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg" onClick={() => navigate("/trees")}>
-                  View My Trees
-                </Button>
-              ) : (
-                <Button className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg" onClick={() => navigate("/auth")}>
-                  Start Your Family Tree
-                </Button>
-              )}
-              <Button variant="outline" className="px-8 py-6 text-lg" onClick={() => navigate(user ? "/trees" : "/auth")}>
+              <Button 
+                className="bg-primary text-white hover:bg-primary/90 px-8 py-6 text-lg"
+                onClick={handleTreesNavigation}
+              >
+                {user ? "View My Trees" : "Start Your Family Tree"}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="px-8 py-6 text-lg"
+                onClick={handleTreesNavigation}
+              >
                 Explore Trees
               </Button>
             </div>
@@ -104,6 +131,7 @@ const Index = () => {
             ))}
           </div>
         </section>
+
       </main>
 
       <footer className="bg-primary text-white py-8">
