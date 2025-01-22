@@ -30,8 +30,8 @@ interface FamilyMember {
 interface AddRelationshipDialogProps {
   members: FamilyMember[];
   onAddRelationship: (relationship: {
-    person1Id: string;
-    person2Id: string;
+    person1_id: string;
+    person2_id: string;
     type: RelationshipType;
   }) => void;
   isLoading: boolean;
@@ -68,7 +68,14 @@ export function AddRelationshipDialog({
       });
       return;
     }
-    onAddRelationship(relationship);
+
+    // Map the relationship to the correct format
+    onAddRelationship({
+      person1_id: relationship.person1Id,
+      person2_id: relationship.person2Id,
+      type: relationship.type,
+    });
+    
     setIsOpen(false);
     setRelationship({
       person1Id: "",
