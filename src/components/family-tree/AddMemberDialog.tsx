@@ -17,13 +17,13 @@ import { PhotoUpload } from "./member-form/PhotoUpload";
 
 interface AddMemberDialogProps {
   onAddMember: (member: {
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    birthDate: string;
-    birthPlace: string;
-    gender: string;
-    photoUrl?: string;
+    first_name: string;
+    middle_name?: string;
+    last_name: string;
+    birth_date?: string;
+    birth_place?: string;
+    gender?: string;
+    photo_url?: string;
     relationshipType?: string;
     relatedMemberId?: string;
   }) => void;
@@ -98,7 +98,18 @@ export function AddMemberDialog({
       photoUrl = (await handlePhotoUpload(photoFile)) || "";
     }
 
-    onAddMember({ ...newMember, photoUrl });
+    onAddMember({
+      first_name: newMember.firstName,
+      middle_name: newMember.middleName || undefined,
+      last_name: newMember.lastName,
+      birth_date: newMember.birthDate || undefined,
+      birth_place: newMember.birthPlace || undefined,
+      gender: newMember.gender || undefined,
+      photo_url: photoUrl || undefined,
+      relationshipType: newMember.relationshipType || undefined,
+      relatedMemberId: newMember.relatedMemberId || undefined,
+    });
+    
     setIsOpen(false);
     setNewMember({
       firstName: "",
