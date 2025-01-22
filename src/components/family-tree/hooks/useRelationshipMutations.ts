@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
 
-type RelationshipType = "parent" | "child" | "spouse" | "sibling";
+type RelationshipType = Database["public"]["Enums"]["relationship_type"];
 
 export function useRelationshipMutations(treeId: string | undefined) {
   const { toast } = useToast();
@@ -10,18 +11,18 @@ export function useRelationshipMutations(treeId: string | undefined) {
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (newRelationship: {
-      person1Id: string;
-      person2Id: string;
-      type: RelationshipType;
+      person1_id: string;
+      person2_id: string;
+      relationship_type: RelationshipType;
     }) => {
       const { data, error } = await supabase
         .from("relationships")
         .insert([
           {
             tree_id: treeId,
-            person1_id: newRelationship.person1Id,
-            person2_id: newRelationship.person2Id,
-            relationship_type: newRelationship.type,
+            person1_id: newRelationship.person1_id,
+            person2_id: newRelationship.person2_id,
+            relationship_type: newRelationship.relationship_type,
           },
         ])
         .select()

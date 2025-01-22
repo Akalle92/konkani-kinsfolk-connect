@@ -8,22 +8,24 @@ export function useMemberMutations(treeId: string | undefined) {
 
   const addMemberMutation = useMutation({
     mutationFn: async (newMember: {
-      firstName: string;
-      lastName: string;
-      birthDate: string;
-      birthPlace: string;
+      first_name: string;
+      last_name: string;
+      birth_date: string;
+      birth_place: string;
       gender: string;
+      photo_url?: string;
     }) => {
       const { data, error } = await supabase
         .from("family_members")
         .insert([
           {
             tree_id: treeId,
-            first_name: newMember.firstName,
-            last_name: newMember.lastName,
-            birth_date: newMember.birthDate || null,
-            birth_place: newMember.birthPlace || null,
+            first_name: newMember.first_name,
+            last_name: newMember.last_name,
+            birth_date: newMember.birth_date || null,
+            birth_place: newMember.birth_place || null,
             gender: newMember.gender || null,
+            photo_url: newMember.photo_url || null,
           },
         ])
         .select()
