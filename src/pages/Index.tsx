@@ -12,15 +12,17 @@ const Index = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      navigate("/auth");
       toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
       });
     } catch (error) {
+      console.error("Sign out error:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
+        title: "Error signing out",
+        description: "There was a problem signing out. Please try again.",
       });
     }
   };
