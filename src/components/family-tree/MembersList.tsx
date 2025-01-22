@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 interface FamilyMember {
   id: string;
   first_name: string;
+  middle_name: string | null;
   last_name: string;
   birth_date: string | null;
   birth_place: string | null;
@@ -30,7 +31,8 @@ export function MembersList({ members }: MembersListProps) {
           className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <h3 className="text-lg font-semibold">
-            {member.first_name} {member.last_name}
+            {member.first_name}
+            {member.middle_name && ` ${member.middle_name}`} {member.last_name}
           </h3>
           {member.birth_date && (
             <p className="text-sm text-gray-600">

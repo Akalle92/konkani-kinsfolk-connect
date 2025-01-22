@@ -11,6 +11,7 @@ import {
 interface BasicInfoFieldsProps {
   firstName: string;
   lastName: string;
+  middleName: string;
   birthDate: string;
   birthPlace: string;
   gender: string;
@@ -20,6 +21,7 @@ interface BasicInfoFieldsProps {
 export function BasicInfoFields({
   firstName,
   lastName,
+  middleName,
   birthDate,
   birthPlace,
   gender,
@@ -34,6 +36,14 @@ export function BasicInfoFields({
           value={firstName}
           onChange={(e) => onFieldChange("firstName", e.target.value)}
           required
+        />
+      </div>
+      <div>
+        <Label htmlFor="middleName">Middle Name</Label>
+        <Input
+          id="middleName"
+          value={middleName}
+          onChange={(e) => onFieldChange("middleName", e.target.value)}
         />
       </div>
       <div>

@@ -19,6 +19,7 @@ interface AddMemberDialogProps {
   onAddMember: (member: {
     firstName: string;
     lastName: string;
+    middleName: string;
     birthDate: string;
     birthPlace: string;
     gender: string;
@@ -44,6 +45,7 @@ export function AddMemberDialog({
   const [newMember, setNewMember] = useState({
     firstName: "",
     lastName: "",
+    middleName: "",
     birthDate: "",
     birthPlace: "",
     gender: "",
@@ -101,6 +103,7 @@ export function AddMemberDialog({
     setNewMember({
       firstName: "",
       lastName: "",
+      middleName: "",
       birthDate: "",
       birthPlace: "",
       gender: "",
@@ -131,6 +134,7 @@ export function AddMemberDialog({
             <BasicInfoFields
               firstName={newMember.firstName}
               lastName={newMember.lastName}
+              middleName={newMember.middleName}
               birthDate={newMember.birthDate}
               birthPlace={newMember.birthPlace}
               gender={newMember.gender}

@@ -19,6 +19,7 @@ export type Database = {
           gender: string | null
           id: string
           last_name: string
+          middle_name: string | null
           notes: string | null
           photo_url: string | null
           tree_id: string
@@ -33,6 +34,7 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name: string
+          middle_name?: string | null
           notes?: string | null
           photo_url?: string | null
           tree_id: string
@@ -47,6 +49,7 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string
+          middle_name?: string | null
           notes?: string | null
           photo_url?: string | null
           tree_id?: string

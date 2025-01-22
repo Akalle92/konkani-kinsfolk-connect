@@ -9,6 +9,7 @@ export function useMemberMutations(treeId: string | undefined) {
   const addMemberMutation = useMutation({
     mutationFn: async (newMember: {
       first_name: string;
+      middle_name?: string;
       last_name: string;
       birth_date: string;
       birth_place: string;
@@ -21,6 +22,7 @@ export function useMemberMutations(treeId: string | undefined) {
           {
             tree_id: treeId,
             first_name: newMember.first_name,
+            middle_name: newMember.middle_name || null,
             last_name: newMember.last_name,
             birth_date: newMember.birth_date || null,
             birth_place: newMember.birth_place || null,
