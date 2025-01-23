@@ -43,7 +43,7 @@ const Index = () => {
     <div className="min-h-screen bg-accent">
       <nav className="bg-primary p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-playfair text-white">Konkani Family Tree</h1>
+          <h1 className="text-2xl font-playfair text-white">Konkannect</h1>
           <div className="space-x-4">
             {user ? (
               <>
