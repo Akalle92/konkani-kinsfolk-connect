@@ -32,7 +32,7 @@ interface AddRelationshipDialogProps {
   onAddRelationship: (relationship: {
     person1_id: string;
     person2_id: string;
-    type: RelationshipType;
+    relationship_type: RelationshipType;
   }) => void;
   isLoading: boolean;
 }
@@ -47,12 +47,12 @@ export function AddRelationshipDialog({
   const [relationship, setRelationship] = useState({
     person1Id: "",
     person2Id: "",
-    type: "" as RelationshipType,
+    relationshipType: "" as RelationshipType,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!relationship.person1Id || !relationship.person2Id || !relationship.type) {
+    if (!relationship.person1Id || !relationship.person2Id || !relationship.relationshipType) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -69,18 +69,18 @@ export function AddRelationshipDialog({
       return;
     }
 
-    // Map the relationship to the correct format
+    // Map the relationship to the correct format with relationship_type
     onAddRelationship({
       person1_id: relationship.person1Id,
       person2_id: relationship.person2Id,
-      type: relationship.type,
+      relationship_type: relationship.relationshipType,
     });
     
     setIsOpen(false);
     setRelationship({
       person1Id: "",
       person2Id: "",
-      type: "" as RelationshipType,
+      relationshipType: "" as RelationshipType,
     });
   };
 
@@ -123,9 +123,9 @@ export function AddRelationshipDialog({
           <div>
             <Label htmlFor="relationshipType">Relationship Type</Label>
             <Select
-              value={relationship.type}
+              value={relationship.relationshipType}
               onValueChange={(value: RelationshipType) =>
-                setRelationship({ ...relationship, type: value })
+                setRelationship({ ...relationship, relationshipType: value })
               }
             >
               <SelectTrigger>
