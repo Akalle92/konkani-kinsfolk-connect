@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,14 @@ const Auth = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, signUp, userRole } = useAuth();
+  const { signIn, signUp, user } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/trees");
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,27 +33,27 @@ const Auth = () => {
       if (isLogin) {
         await signIn(email, password);
         toast({
-          title: `Welcome back${userRole?.role === 'admin' ? ' Admin' : ''}!`,
+          title: "Welcome back!",
           description: "You have successfully logged in.",
         });
       } else {
         await signUp(email, password);
         toast({
-          title: "Welcome!",
-          description: "Your account has been created successfully.",
+          title: "Account created!",
+          description: "Please check your email for verification.",
         });
       }
-      navigate("/trees");
     } catch (error) {
+      console.error("Auth error:", error);
       const message = error instanceof Error ? error.message : "An error occurred";
       let userFriendlyMessage = message;
       
-      if (message.includes("invalid_credentials")) {
-        userFriendlyMessage = isLogin 
-          ? "Invalid email or password. Please try again or sign up if you don't have an account."
-          : "Unable to create account. Please try again with different credentials.";
+      if (message.includes("Invalid login credentials")) {
+        userFriendlyMessage = "Invalid email or password. Please try again.";
+      } else if (message.includes("User already registered")) {
+        userFriendlyMessage = "This email is already registered. Please try logging in instead.";
       } else if (message.includes("Email not confirmed")) {
-        userFriendlyMessage = "Please check your email for a confirmation link. If you haven't received it, try signing up again.";
+        userFriendlyMessage = "Please check your email for a confirmation link.";
       }
       
       setError(userFriendlyMessage);
@@ -61,9 +68,9 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-accent flex items-center justify-center">
+    <div className="min-h-screen bg-accent flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-playfair font-bold text-center mb-8">
+        <h2 className="text-3xl font-playfair font-bold text-center mb-8 text-primary">
           {isLogin ? "Welcome Back" : "Create Account"}
         </h2>
         
@@ -83,6 +90,7 @@ const Auth = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full"
             />
           </div>
           <div className="space-y-2">
@@ -95,22 +103,26 @@ const Auth = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              className="w-full"
             />
           </div>
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-primary hover:bg-primary/90"
             disabled={loading}
           >
-            {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+            {loading ? "Please wait..." : isLogin ? "Sign In" : "Sign Up"}
           </Button>
         </form>
+
         <div className="mt-6 text-center">
           <button
             type="button"
             onClick={() => {
               setIsLogin(!isLogin);
               setError("");
+              setEmail("");
+              setPassword("");
             }}
             className="text-primary hover:underline"
           >

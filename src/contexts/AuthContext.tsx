@@ -30,12 +30,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         fetchUserRole(session.user.id);
       }
+      setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -49,24 +51,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const fetchUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
 
-    if (error) {
-      console.error("Error fetching user role:", error);
-      return;
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return;
+      }
+
+      setUserRole(data);
+    } catch (error) {
+      console.error("Error in fetchUserRole:", error);
     }
-
-    setUserRole(data);
   };
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: window.location.origin + '/auth',
+      }
     });
 
     if (error) throw error;
