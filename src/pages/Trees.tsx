@@ -35,14 +35,18 @@ const Trees = () => {
   const [newTreeDescription, setNewTreeDescription] = useState('');
 
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-  }, [user, navigate]);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   // Fetch trees
-  const { data: trees, isLoading } = useQuery({
+  const { data: trees, isLoading, error } = useQuery({
     queryKey: ['trees'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -50,7 +54,10 @@ const Trees = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching trees:', error);
+        throw error;
+      }
       return data;
     },
     enabled: !!user,
@@ -136,14 +143,19 @@ const Trees = () => {
     createTreeMutation.mutate();
   };
 
-  if (!user) {
-    return null; // Will redirect in useEffect
-  }
-
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-3xl font-playfair mb-6">Loading...</h1>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <h1 className="text-3xl font-playfair mb-6">Error loading trees</h1>
+        <p className="text-red-500">Please try refreshing the page.</p>
       </div>
     );
   }
