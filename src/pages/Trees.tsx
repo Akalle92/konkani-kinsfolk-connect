@@ -53,13 +53,14 @@ const Trees = () => {
     },
     enabled: !!user,
     retry: 1,
-    onError: (error) => {
-      console.error('Query error:', error);
-      toast({
-        title: "Error loading trees",
-        description: "There was a problem loading your family trees. Please try again.",
-        variant: "destructive"
-      });
+    meta: {
+      onError: () => {
+        toast({
+          title: "Error loading trees",
+          description: "There was a problem loading your family trees. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   });
 
