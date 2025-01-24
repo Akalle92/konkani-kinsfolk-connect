@@ -12,6 +12,17 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TreeCardProps {
   id: string;
@@ -45,44 +56,62 @@ export const TreeCard = ({ id, name, description, created_at }: TreeCardProps) =
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete family tree. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to delete family tree. Please try again.",
       });
       console.error('Error deleting tree:', error);
     },
   });
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col h-full">
       <CardHeader>
-        <CardTitle>{name}</CardTitle>
+        <CardTitle className="text-xl">{name}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-gray-500">
-          Created: {new Date(created_at || '').toLocaleDateString()}
+      <CardContent className="flex-grow">
+        <p className="text-sm text-muted-foreground">
+          Created: {new Date(created_at).toLocaleDateString()}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-end space-x-2 mt-auto">
+      <CardFooter className="flex justify-end space-x-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate(`/trees/${id}`)}
+          className="hover:bg-accent"
         >
           <Pencil className="h-4 w-4 mr-2" />
           View & Edit
         </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => {
-            if (window.confirm('Are you sure you want to delete this tree?')) {
-              deleteTreeMutation.mutate(id);
-            }
-          }}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="sm"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your
+                family tree and all its data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteTreeMutation.mutate(id)}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardFooter>
     </Card>
   );

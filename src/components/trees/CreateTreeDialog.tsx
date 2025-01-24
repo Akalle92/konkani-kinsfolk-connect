@@ -55,7 +55,7 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create family tree. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create family tree. Please try again.",
       });
       console.error('Error creating tree:', error);
     },
@@ -77,7 +77,7 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary">
+        <Button className="bg-primary hover:bg-primary/90">
           <Plus className="mr-2 h-4 w-4" />
           Create New Tree
         </Button>
@@ -122,7 +122,11 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createTreeMutation.isPending}>
+            <Button 
+              type="submit" 
+              disabled={createTreeMutation.isPending}
+              className="bg-primary hover:bg-primary/90"
+            >
               Create Tree
             </Button>
           </div>

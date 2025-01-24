@@ -24,15 +24,15 @@ const Trees = () => {
   const { data: trees, isLoading, error } = useQuery({
     queryKey: ['trees'],
     queryFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
       const { data, error } = await supabase
         .from('family_trees')
         .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching trees:', error);
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
     enabled: !!user,
@@ -41,7 +41,9 @@ const Trees = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-playfair mb-6">Loading...</h1>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-lg text-muted-foreground">Loading your family trees...</p>
+        </div>
       </div>
     );
   }
@@ -49,8 +51,10 @@ const Trees = () => {
   if (error) {
     return (
       <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-playfair mb-6">Error loading trees</h1>
-        <p className="text-red-500">Please try refreshing the page.</p>
+        <div className="bg-destructive/10 p-4 rounded-lg">
+          <h1 className="text-xl font-semibold text-destructive mb-2">Error loading trees</h1>
+          <p className="text-destructive">Please try refreshing the page.</p>
+        </div>
       </div>
     );
   }
@@ -67,21 +71,24 @@ const Trees = () => {
         {user && <CreateTreeDialog userId={user.id} />}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trees?.map((tree) => (
-          <TreeCard
-            key={tree.id}
-            id={tree.id}
-            name={tree.name}
-            description={tree.description}
-            created_at={tree.created_at}
-          />
-        ))}
-      </div>
-
-      {trees?.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">You haven't created any family trees yet.</p>
+      {trees && trees.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {trees.map((tree) => (
+            <TreeCard
+              key={tree.id}
+              id={tree.id}
+              name={tree.name}
+              description={tree.description}
+              created_at={tree.created_at || ''}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-accent rounded-lg">
+          <p className="text-accent-foreground">You haven't created any family trees yet.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Click the "Create New Tree" button to get started.
+          </p>
         </div>
       )}
     </div>
