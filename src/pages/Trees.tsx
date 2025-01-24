@@ -34,6 +34,7 @@ const Trees = () => {
     queryKey: ['trees'],
     queryFn: async () => {
       if (!user) {
+        console.log('No user found in queryFn');
         throw new Error('User not authenticated');
       }
       
@@ -56,7 +57,8 @@ const Trees = () => {
     enabled: !!user,
     retry: 1,
     meta: {
-      onError: () => {
+      onError: (error: Error) => {
+        console.error('Query error:', error);
         toast({
           title: "Error loading trees",
           description: "There was a problem loading your family trees. Please try again.",
@@ -66,10 +68,15 @@ const Trees = () => {
     }
   });
 
+  if (!user) {
+    console.log('No user in component render');
+    return <TreesError />;
+  }
+
   return (
     <div className="container mx-auto p-6">
       <TreesHeader 
-        userId={user?.id || ''} 
+        userId={user.id} 
         isAdmin={userRole?.role === 'admin'} 
       />
       

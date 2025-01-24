@@ -24,7 +24,11 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
 
   const createTreeMutation = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error('User not authenticated');
+      console.log('Creating tree for user:', userId);
+      if (!userId) {
+        console.error('No user ID provided');
+        throw new Error('User not authenticated');
+      }
       
       const { data, error } = await supabase
         .from('family_trees')
@@ -38,7 +42,12 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating tree:', error);
+        throw error;
+      }
+
+      console.log('Tree created successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -52,12 +61,12 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
       });
     },
     onError: (error) => {
+      console.error('Mutation error:', error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create family tree. Please try again.",
       });
-      console.error('Error creating tree:', error);
     },
   });
 
@@ -71,6 +80,7 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
       });
       return;
     }
+    console.log('Attempting to create tree:', { name: newTreeName, description: newTreeDescription });
     createTreeMutation.mutate();
   };
 
@@ -127,7 +137,7 @@ export const CreateTreeDialog = ({ userId }: { userId: string }) => {
               disabled={createTreeMutation.isPending}
               className="bg-primary hover:bg-primary/90"
             >
-              Create Tree
+              {createTreeMutation.isPending ? 'Creating...' : 'Create Tree'}
             </Button>
           </div>
         </form>
