@@ -67,13 +67,13 @@ export function AddMemberDialog({
       return;
     }
 
-    // Map form fields to database fields
+    // Map form fields to database fields as plain strings
     const memberData = {
-      first_name: newMember.firstName.trim(),
-      middle_name: newMember.middleName ? newMember.middleName.trim() : undefined,
-      last_name: newMember.lastName.trim(),
+      first_name: String(newMember.firstName).trim(),
+      middle_name: newMember.middleName ? String(newMember.middleName).trim() : undefined,
+      last_name: String(newMember.lastName).trim(),
       birth_date: newMember.birthDate || undefined,
-      birth_place: newMember.birthPlace ? newMember.birthPlace.trim() : undefined,
+      birth_place: newMember.birthPlace ? String(newMember.birthPlace).trim() : undefined,
       gender: newMember.gender || undefined,
       photo_url: newMember.photoUrl || undefined,
       relationshipType: newMember.relationshipType || undefined,

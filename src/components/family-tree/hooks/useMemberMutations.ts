@@ -24,9 +24,9 @@ export function useMemberMutations(treeId: string | undefined) {
 
       const memberData = {
         tree_id: treeId,
-        first_name: newMember.first_name,
-        middle_name: newMember.middle_name,
-        last_name: newMember.last_name,
+        first_name: String(newMember.first_name),
+        middle_name: newMember.middle_name ? String(newMember.middle_name) : undefined,
+        last_name: String(newMember.last_name),
         birth_date: newMember.birth_date,
         birth_place: newMember.birth_place,
         gender: newMember.gender,
