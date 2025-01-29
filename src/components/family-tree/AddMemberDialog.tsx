@@ -10,10 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
-import { BasicInfoFields } from "./member-form/BasicInfoFields";
-import { RelationshipSelect } from "./member-form/RelationshipSelect";
-import { PhotoUpload } from "./member-form/PhotoUpload";
+import { MemberFormFields } from "./member-form/MemberFormFields";
 
 interface AddMemberDialogProps {
   onAddMember: (member: {
@@ -38,7 +35,7 @@ interface AddMemberDialogProps {
 export function AddMemberDialog({
   onAddMember,
   isLoading,
-  existingMembers,
+  existingMembers = [],
 }: AddMemberDialogProps) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -53,31 +50,6 @@ export function AddMemberDialog({
     relationshipType: "",
     relatedMemberId: "",
   });
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-
-  const handlePhotoUpload = async (file: File) => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const { data, error } = await supabase.storage
-      .from("member-photos")
-      .upload(fileName, file);
-
-    if (error) {
-      console.error("Photo upload error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to upload photo",
-      });
-      return null;
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("member-photos").getPublicUrl(fileName);
-
-    return publicUrl;
-  };
 
   const handleFieldChange = (field: string, value: string) => {
     setNewMember((prev) => ({ ...prev, [field]: value }));
@@ -96,11 +68,6 @@ export function AddMemberDialog({
       return;
     }
 
-    let photoUrl = "";
-    if (photoFile) {
-      photoUrl = (await handlePhotoUpload(photoFile)) || "";
-    }
-
     const memberData = {
       first_name: String(newMember.firstName),
       middle_name: newMember.middleName ? String(newMember.middleName) : undefined,
@@ -108,7 +75,7 @@ export function AddMemberDialog({
       birth_date: newMember.birthDate || undefined,
       birth_place: newMember.birthPlace || undefined,
       gender: newMember.gender || undefined,
-      photo_url: photoUrl || undefined,
+      photo_url: newMember.photoUrl || undefined,
       relationshipType: newMember.relationshipType || undefined,
       relatedMemberId: newMember.relatedMemberId || undefined,
     };
@@ -128,7 +95,6 @@ export function AddMemberDialog({
       relationshipType: "",
       relatedMemberId: "",
     });
-    setPhotoFile(null);
   };
 
   return (
@@ -147,32 +113,12 @@ export function AddMemberDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-4">
-            <BasicInfoFields
-              firstName={newMember.firstName}
-              lastName={newMember.lastName}
-              middleName={newMember.middleName}
-              birthDate={newMember.birthDate}
-              birthPlace={newMember.birthPlace}
-              gender={newMember.gender}
-              onFieldChange={handleFieldChange}
-            />
-            <RelationshipSelect
-              existingMembers={existingMembers || []}
-              relationshipType={newMember.relationshipType}
-              relatedMemberId={newMember.relatedMemberId}
-              onRelationshipTypeChange={(value) =>
-                handleFieldChange("relationshipType", value)
-              }
-              onRelatedMemberChange={(value) =>
-                handleFieldChange("relatedMemberId", value)
-              }
-            />
-            <PhotoUpload
-              photoFile={photoFile}
-              onPhotoChange={setPhotoFile}
-            />
-          </div>
+          <MemberFormFields
+            newMember={newMember}
+            onFieldChange={handleFieldChange}
+            onPhotoUrlChange={(url) => handleFieldChange("photoUrl", url)}
+            existingMembers={existingMembers}
+          />
           <div className="flex justify-end space-x-2">
             <Button
               type="button"
