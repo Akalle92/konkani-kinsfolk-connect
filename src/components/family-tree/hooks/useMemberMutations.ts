@@ -2,20 +2,22 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+interface NewMember {
+  first_name: string;
+  middle_name?: string;
+  last_name: string;
+  birth_date?: string;
+  birth_place?: string;
+  gender?: string;
+  photo_url?: string;
+}
+
 export function useMemberMutations(treeId: string | undefined) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addMemberMutation = useMutation({
-    mutationFn: async (newMember: {
-      first_name: string;
-      middle_name?: string;
-      last_name: string;
-      birth_date?: string;
-      birth_place?: string;
-      gender?: string;
-      photo_url?: string;
-    }) => {
+    mutationFn: async (newMember: NewMember) => {
       if (!treeId) {
         throw new Error("Tree ID is required");
       }
