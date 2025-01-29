@@ -57,7 +57,7 @@ export function AddMemberDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting member:", newMember);
+    console.log("Form submitted with data:", newMember);
     
     if (!newMember.firstName || !newMember.lastName) {
       toast({
@@ -68,19 +68,20 @@ export function AddMemberDialog({
       return;
     }
 
+    // Map form fields to database fields
     const memberData = {
-      first_name: String(newMember.firstName),
-      middle_name: newMember.middleName ? String(newMember.middleName) : undefined,
-      last_name: String(newMember.lastName),
+      first_name: newMember.firstName.trim(),
+      middle_name: newMember.middleName ? newMember.middleName.trim() : undefined,
+      last_name: newMember.lastName.trim(),
       birth_date: newMember.birthDate || undefined,
-      birth_place: newMember.birthPlace || undefined,
+      birth_place: newMember.birthPlace ? newMember.birthPlace.trim() : undefined,
       gender: newMember.gender || undefined,
       photo_url: newMember.photoUrl || undefined,
       relationshipType: newMember.relationshipType || undefined,
       relatedMemberId: newMember.relatedMemberId || undefined,
     };
 
-    console.log("Sending member data:", memberData);
+    console.log("Sending member data to mutation:", memberData);
     onAddMember(memberData);
     
     setIsOpen(false);

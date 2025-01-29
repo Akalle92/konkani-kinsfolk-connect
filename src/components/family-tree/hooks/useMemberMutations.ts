@@ -16,11 +16,11 @@ export function useMemberMutations(treeId: string | undefined) {
       gender?: string;
       photo_url?: string;
     }) => {
-      console.log("Adding member with data:", { ...newMember, tree_id: treeId });
-      
       if (!treeId) {
         throw new Error("Tree ID is required");
       }
+
+      console.log("Adding member with data:", { ...newMember, tree_id: treeId });
 
       const { data, error } = await supabase
         .from("family_members")
