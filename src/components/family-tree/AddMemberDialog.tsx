@@ -68,18 +68,18 @@ export function AddMemberDialog({
     }
 
     const memberData = {
-      first_name: newMember.firstName,
-      middle_name: newMember.middleName || undefined,
-      last_name: newMember.lastName,
+      first_name: newMember.firstName.trim(),
+      middle_name: newMember.middleName.trim() || undefined,
+      last_name: newMember.lastName.trim(),
       birth_date: newMember.birthDate || undefined,
-      birth_place: newMember.birthPlace || undefined,
+      birth_place: newMember.birthPlace.trim() || undefined,
       gender: newMember.gender || undefined,
       photo_url: newMember.photoUrl || undefined,
       relationshipType: newMember.relationshipType || undefined,
       relatedMemberId: newMember.relatedMemberId || undefined,
     };
 
-    console.log("Sending member data to mutation:", memberData);
+    console.log("Sending member data:", memberData);
     onAddMember(memberData);
     
     setIsOpen(false);
