@@ -20,22 +20,22 @@ export function useMemberMutations(treeId: string | undefined) {
         throw new Error("Tree ID is required");
       }
 
-      console.log("Adding member with data:", { ...newMember, tree_id: treeId });
+      const memberData = {
+        tree_id: treeId,
+        first_name: newMember.first_name,
+        middle_name: newMember.middle_name,
+        last_name: newMember.last_name,
+        birth_date: newMember.birth_date,
+        birth_place: newMember.birth_place,
+        gender: newMember.gender,
+        photo_url: newMember.photo_url,
+      };
+
+      console.log("Adding member with data:", memberData);
 
       const { data, error } = await supabase
         .from("family_members")
-        .insert([
-          {
-            tree_id: treeId,
-            first_name: newMember.first_name,
-            middle_name: newMember.middle_name,
-            last_name: newMember.last_name,
-            birth_date: newMember.birth_date,
-            birth_place: newMember.birth_place,
-            gender: newMember.gender,
-            photo_url: newMember.photo_url,
-          },
-        ])
+        .insert([memberData])
         .select()
         .single();
 
