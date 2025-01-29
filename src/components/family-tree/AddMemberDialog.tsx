@@ -63,6 +63,7 @@ export function AddMemberDialog({
       .upload(fileName, file);
 
     if (error) {
+      console.error("Photo upload error:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -84,6 +85,8 @@ export function AddMemberDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting member:", newMember);
+    
     if (!newMember.firstName || !newMember.lastName) {
       toast({
         variant: "destructive",
@@ -98,7 +101,7 @@ export function AddMemberDialog({
       photoUrl = (await handlePhotoUpload(photoFile)) || "";
     }
 
-    onAddMember({
+    const memberData = {
       first_name: newMember.firstName,
       middle_name: newMember.middleName || undefined,
       last_name: newMember.lastName,
@@ -108,7 +111,10 @@ export function AddMemberDialog({
       photo_url: photoUrl || undefined,
       relationshipType: newMember.relationshipType || undefined,
       relatedMemberId: newMember.relatedMemberId || undefined,
-    });
+    };
+
+    console.log("Sending member data:", memberData);
+    onAddMember(memberData);
     
     setIsOpen(false);
     setNewMember({
@@ -176,7 +182,7 @@ export function AddMemberDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              Add Member
+              {isLoading ? "Adding..." : "Add Member"}
             </Button>
           </div>
         </form>
