@@ -6,10 +6,12 @@ import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TreesLoading } from "@/components/trees/TreesLoading";
+import { TreesError } from "@/components/trees/TreesError";
 
 const TreeView = () => {
   const { id } = useParams();
-  const { tree, members, relationships } = useTreeData(id);
+  const { tree, members, relationships, isLoading, error } = useTreeData(id);
   const { addMemberMutation } = useMemberMutations(id);
   const { addRelationshipMutation } = useRelationshipMutations(id);
 
@@ -25,8 +27,17 @@ const TreeView = () => {
     await addRelationshipMutation.mutateAsync(relationship);
   };
 
+  if (isLoading) {
+    return <TreesLoading />;
+  }
+
+  if (error) {
+    console.error("Error loading tree:", error);
+    return <TreesError />;
+  }
+
   if (!tree || !members) {
-    return <div>Loading...</div>;
+    return <TreesError />;
   }
 
   return (
