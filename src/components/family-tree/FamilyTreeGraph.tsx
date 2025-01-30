@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface GraphNode {
   id: string;
@@ -47,12 +46,16 @@ export function FamilyTreeGraph({ nodes: initialNodes, links: initialLinks }: Fa
     });
   }, [initialLinks, nodes, expandedNodes]);
 
+  // Debug logging to check the node data
+  console.log("Graph Nodes:", nodes);
+  console.log("Graph Links:", visibleLinks);
+
   return (
     <div className="w-full h-[600px] border rounded-lg overflow-hidden bg-white">
       <ForceGraph2D
         graphData={{ nodes, links: visibleLinks }}
-        nodeLabel="name"
-        nodeColor={(node) => (node as GraphNode).color}
+        nodeLabel={(node) => (node as GraphNode).name || "Unknown"}
+        nodeColor={(node) => (node as GraphNode).color || "#000"}
         linkLabel={(link) => (link as GraphLink).type}
         nodeCanvasObject={(node, ctx, globalScale) => {
           const { x, y, name, color, photoUrl } = node as GraphNode;
@@ -75,10 +78,12 @@ export function FamilyTreeGraph({ nodes: initialNodes, links: initialLinks }: Fa
             ctx.restore();
           }
 
+          // Ensure name is a string before rendering
+          const displayName = typeof name === 'string' ? name : 'Unknown';
           ctx.font = `${fontSize}px Inter`;
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
-          ctx.fillText(name, x, y + size);
+          ctx.fillText(displayName, x, y + size);
 
           const isExpanded = expandedNodes.has(node.id);
           const hasChildren = initialLinks.some(link => link.source === node.id);

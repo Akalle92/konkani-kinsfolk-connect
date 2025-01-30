@@ -19,12 +19,13 @@ const TreeView = () => {
 
   const handleAddMember = async (memberData: any) => {
     const result = await addMemberMutation.mutateAsync({
-      first_name: memberData.firstName,
-      last_name: memberData.lastName,
-      birth_date: memberData.birthDate,
-      birth_place: memberData.birthPlace,
+      first_name: memberData.first_name,
+      last_name: memberData.last_name,
+      middle_name: memberData.middle_name,
+      birth_date: memberData.birth_date,
+      birth_place: memberData.birth_place,
       gender: memberData.gender,
-      photo_url: memberData.photoUrl,
+      photo_url: memberData.photo_url,
     });
 
     if (memberData.relationshipType && memberData.relatedMemberId) {
@@ -36,19 +37,20 @@ const TreeView = () => {
     }
   };
 
-  // Prepare graph data
+  // Prepare graph data with proper type checking
   const graphData = useMemo(() => {
     if (!members || !relationships) return { nodes: [], links: [] };
 
+    console.log("Raw members data:", members);
+
     const nodes = members.map((member) => ({
       id: member.id,
-      name: `${member.first_name} ${member.last_name}`,
-      color:
-        member.gender === "Male"
-          ? "#7393B3"
-          : member.gender === "Female"
-          ? "#E6A8D7"
-          : "#A9A9A9",
+      name: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+      color: member.gender === "Male" 
+        ? "#7393B3" 
+        : member.gender === "Female" 
+        ? "#E6A8D7" 
+        : "#A9A9A9",
       photoUrl: member.photo_url,
     }));
 
@@ -58,6 +60,7 @@ const TreeView = () => {
       type: rel.relationship_type,
     }));
 
+    console.log("Transformed graph data:", { nodes, links });
     return { nodes, links };
   }, [members, relationships]);
 
