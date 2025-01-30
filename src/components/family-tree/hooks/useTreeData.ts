@@ -15,7 +15,7 @@ export function useTreeData(treeId: string | undefined) {
         .from("family_trees")
         .select("*")
         .eq("id", treeId)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Error fetching tree:", error);
@@ -46,7 +46,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Members data received:", data);
       return data || [];
     },
-    enabled: Boolean(treeId),
+    enabled: Boolean(treeId) && Boolean(tree),
   });
 
   // Fetch relationships
@@ -68,7 +68,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Relationships data received:", data);
       return data || [];
     },
-    enabled: Boolean(treeId),
+    enabled: Boolean(treeId) && Boolean(members),
   });
 
   const isLoading = isTreeLoading || isMembersLoading || isRelationshipsLoading;

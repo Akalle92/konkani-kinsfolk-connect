@@ -8,9 +8,21 @@ import { useRelationshipMutations } from "@/components/family-tree/hooks/useRela
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TreesLoading } from "@/components/trees/TreesLoading";
 import { TreesError } from "@/components/trees/TreesError";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TreeView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
   console.log("TreeView rendered with id:", id);
   
   const { tree, members, relationships, isLoading, error } = useTreeData(id);
@@ -26,6 +38,10 @@ const TreeView = () => {
   const handleAddRelationship = async (relationship: any) => {
     await addRelationshipMutation.mutateAsync(relationship);
   };
+
+  if (!user) {
+    return null;
+  }
 
   if (isLoading) {
     console.log("TreeView is loading");
