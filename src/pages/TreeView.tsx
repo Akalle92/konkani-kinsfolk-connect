@@ -19,13 +19,8 @@ const TreeView = () => {
 
   const handleAddMember = async (memberData: any) => {
     const result = await addMemberMutation.mutateAsync({
-      first_name: memberData.first_name,
-      last_name: memberData.last_name,
-      middle_name: memberData.middle_name,
-      birth_date: memberData.birth_date,
-      birth_place: memberData.birth_place,
-      gender: memberData.gender,
-      photo_url: memberData.photo_url,
+      ...memberData,
+      tree_id: treeId,
     });
 
     if (memberData.relationshipType && memberData.relatedMemberId) {
@@ -33,6 +28,7 @@ const TreeView = () => {
         person1_id: memberData.relatedMemberId,
         person2_id: result.id,
         relationship_type: memberData.relationshipType,
+        tree_id: treeId,
       });
     }
   };
@@ -42,7 +38,7 @@ const TreeView = () => {
 
     const nodes = members.map((member) => ({
       id: member.id,
-      name: `${member.first_name} ${member.last_name}`.trim(),
+      name: `${member.first_name} ${member.last_name}`,
       color: member.gender === "Male" 
         ? "#7393B3" 
         : member.gender === "Female" 
@@ -51,12 +47,15 @@ const TreeView = () => {
       photoUrl: member.photo_url,
     }));
 
+    console.log("Created nodes:", nodes);
+
     const links = relationships.map((rel) => ({
       source: rel.person1_id,
       target: rel.person2_id,
       type: rel.relationship_type,
     }));
 
+    console.log("Created links:", links);
     return { nodes, links };
   }, [members, relationships]);
 
@@ -88,7 +87,10 @@ const TreeView = () => {
       />
 
       <div className="space-y-8">
-        <FamilyTreeGraph nodes={graphData.nodes} links={graphData.links} />
+        <FamilyTreeGraph 
+          nodes={graphData.nodes} 
+          links={graphData.links} 
+        />
         <OrgChart members={members || []} relationships={relationships || []} />
         <MembersList members={members || []} />
       </div>
