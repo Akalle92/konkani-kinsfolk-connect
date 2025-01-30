@@ -5,16 +5,18 @@ import { Database } from "@/integrations/supabase/types";
 
 type RelationshipType = Database["public"]["Enums"]["relationship_type"];
 
+export type NewRelationship = {
+  person1_id: string;
+  person2_id: string;
+  relationship_type: RelationshipType;
+};
+
 export function useRelationshipMutations(treeId: string | undefined) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addRelationshipMutation = useMutation({
-    mutationFn: async (newRelationship: {
-      person1_id: string;
-      person2_id: string;
-      relationship_type: RelationshipType;
-    }) => {
+    mutationFn: async (newRelationship: NewRelationship) => {
       const { data, error } = await supabase
         .from("relationships")
         .insert([
