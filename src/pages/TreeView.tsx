@@ -28,7 +28,6 @@ const TreeView = () => {
         person1_id: memberData.relatedMemberId,
         person2_id: result.id,
         relationship_type: memberData.relationshipType,
-        tree_id: treeId,
       });
     }
   };
