@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useTreeData(treeId: string | undefined) {
+  console.log("useTreeData called with treeId:", treeId);
+
   // Fetch tree details
   const { data: tree, isLoading: isTreeLoading, error: treeError } = useQuery({
     queryKey: ["tree", treeId],
@@ -17,6 +19,7 @@ export function useTreeData(treeId: string | undefined) {
         console.error("Error fetching tree:", error);
         throw error;
       }
+      console.log("Tree data received:", data);
       if (!data) {
         throw new Error("Tree not found");
       }
@@ -39,9 +42,10 @@ export function useTreeData(treeId: string | undefined) {
         console.error("Error fetching members:", error);
         throw error;
       }
+      console.log("Members data received:", data);
       return data || [];
     },
-    enabled: !!treeId,
+    enabled: !!treeId && !!tree,
   });
 
   // Fetch relationships
@@ -58,13 +62,22 @@ export function useTreeData(treeId: string | undefined) {
         console.error("Error fetching relationships:", error);
         throw error;
       }
+      console.log("Relationships data received:", data);
       return data || [];
     },
-    enabled: !!treeId,
+    enabled: !!treeId && !!tree && !!members,
   });
 
   const isLoading = isTreeLoading || isMembersLoading || isRelationshipsLoading;
   const error = treeError || membersError || relationshipsError;
+
+  console.log("useTreeData returning:", {
+    tree,
+    members,
+    relationships,
+    isLoading,
+    error
+  });
 
   return { 
     tree, 

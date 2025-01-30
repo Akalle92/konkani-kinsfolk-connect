@@ -11,23 +11,24 @@ import { TreesError } from "@/components/trees/TreesError";
 
 const TreeView = () => {
   const { id } = useParams();
+  console.log("TreeView rendered with id:", id);
+  
   const { tree, members, relationships, isLoading, error } = useTreeData(id);
   const { addMemberMutation } = useMemberMutations(id);
   const { addRelationshipMutation } = useRelationshipMutations(id);
+
+  console.log("TreeView data:", { tree, members, relationships, isLoading, error });
 
   const handleAddMember = async (member: any) => {
     await addMemberMutation.mutateAsync(member);
   };
 
-  const handleAddRelationship = async (relationship: {
-    person1_id: string;
-    person2_id: string;
-    relationship_type: "parent" | "child" | "spouse" | "sibling";
-  }) => {
+  const handleAddRelationship = async (relationship: any) => {
     await addRelationshipMutation.mutateAsync(relationship);
   };
 
   if (isLoading) {
+    console.log("TreeView is loading");
     return <TreesLoading />;
   }
 
@@ -37,11 +38,18 @@ const TreeView = () => {
   }
 
   if (!tree || !members) {
+    console.log("Tree or members data missing:", { tree, members });
     return <TreesError />;
   }
 
+  console.log("Rendering TreeView with data:", {
+    treeName: tree.name,
+    memberCount: members.length,
+    relationshipCount: relationships?.length
+  });
+
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto py-8">
       <TreeHeader
         treeName={tree.name}
         treeDescription={tree.description}
@@ -52,17 +60,15 @@ const TreeView = () => {
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <Tabs defaultValue="org" className="mt-6">
+      <Tabs defaultValue="chart" className="mt-6">
         <TabsList>
-          <TabsTrigger value="org">Tree View</TabsTrigger>
-          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="chart">Family Tree</TabsTrigger>
+          <TabsTrigger value="list">Members List</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="org" className="mt-4">
+        <TabsContent value="chart">
           <OrgChart members={members} relationships={relationships || []} />
         </TabsContent>
-        
-        <TabsContent value="list" className="mt-4">
+        <TabsContent value="list">
           <MembersList members={members} />
         </TabsContent>
       </Tabs>
