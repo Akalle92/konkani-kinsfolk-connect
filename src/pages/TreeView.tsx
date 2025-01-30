@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { TreeHeader } from "@/components/family-tree/TreeHeader";
 import { MembersList } from "@/components/family-tree/MembersList";
-import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
 import { OrgChart } from "@/components/family-tree/OrgChart";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
@@ -30,19 +29,6 @@ const TreeView = () => {
     return <div>Loading...</div>;
   }
 
-  const graphNodes = members.map((member) => ({
-    id: member.id,
-    name: `${member.first_name} ${member.last_name}`,
-    color: member.gender === "male" ? "#7CB9E8" : "#F4C2C2",
-    photoUrl: member.photo_url,
-  }));
-
-  const graphLinks = relationships?.map((rel) => ({
-    source: rel.person1_id,
-    target: rel.person2_id,
-    type: rel.relationship_type,
-  })) || [];
-
   return (
     <div className="container mx-auto p-6">
       <TreeHeader
@@ -55,16 +41,11 @@ const TreeView = () => {
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <Tabs defaultValue="graph" className="mt-6">
+      <Tabs defaultValue="org" className="mt-6">
         <TabsList>
-          <TabsTrigger value="graph">Graph View</TabsTrigger>
-          <TabsTrigger value="org">Organization View</TabsTrigger>
+          <TabsTrigger value="org">Tree View</TabsTrigger>
           <TabsTrigger value="list">List View</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="graph" className="mt-4">
-          <FamilyTreeGraph nodes={graphNodes} links={graphLinks} />
-        </TabsContent>
         
         <TabsContent value="org" className="mt-4">
           <OrgChart members={members} relationships={relationships || []} />
