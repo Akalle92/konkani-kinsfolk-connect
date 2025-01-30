@@ -1,98 +1,79 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { TreeHeader } from "@/components/family-tree/TreeHeader";
+import { MembersList } from "@/components/family-tree/MembersList";
+import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
+import { OrgChart } from "@/components/family-tree/OrgChart";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
-import { TreeHeader } from "@/components/family-tree/TreeHeader";
-import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
-import { MembersList } from "@/components/family-tree/MembersList";
-import { OrgChart } from "@/components/family-tree/OrgChart";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TreeView = () => {
-  const { id: treeId } = useParams();
-  const navigate = useNavigate();
-  const { tree, members, relationships } = useTreeData(treeId);
-  const { addMemberMutation } = useMemberMutations(treeId);
-  const { addRelationshipMutation } = useRelationshipMutations(treeId);
+  const { id } = useParams();
+  const { tree, members, relationships } = useTreeData(id);
+  const { addMemberMutation } = useMemberMutations(id);
+  const { addRelationshipMutation } = useRelationshipMutations(id);
 
-  const handleAddMember = async (memberData: any) => {
-    const result = await addMemberMutation.mutateAsync({
-      ...memberData,
-      tree_id: treeId,
-    });
-
-    if (memberData.relationshipType && memberData.relatedMemberId) {
-      await addRelationshipMutation.mutateAsync({
-        person1_id: memberData.relatedMemberId,
-        person2_id: result.id,
-        relationship_type: memberData.relationshipType,
-      });
-    }
+  const handleAddMember = async (member: any) => {
+    await addMemberMutation.mutateAsync(member);
   };
 
-  const graphData = useMemo(() => {
-    if (!members || !relationships) return { nodes: [], links: [] };
+  const handleAddRelationship = async (relationship: {
+    person1_id: string;
+    person2_id: string;
+    relationship_type: "parent" | "child" | "spouse" | "sibling";
+  }) => {
+    await addRelationshipMutation.mutateAsync(relationship);
+  };
 
-    const nodes = members.map((member) => ({
-      id: member.id,
-      name: `${member.first_name} ${member.last_name}`,
-      color: member.gender === "Male" 
-        ? "#7393B3" 
-        : member.gender === "Female" 
-        ? "#E6A8D7" 
-        : "#A9A9A9",
-      photoUrl: member.photo_url,
-    }));
-
-    console.log("Created nodes:", nodes);
-
-    const links = relationships.map((rel) => ({
-      source: rel.person1_id,
-      target: rel.person2_id,
-      type: rel.relationship_type,
-    }));
-
-    console.log("Created links:", links);
-    return { nodes, links };
-  }, [members, relationships]);
-
-  if (!tree) {
-    return (
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-playfair mb-6">Loading...</h1>
-      </div>
-    );
+  if (!tree || !members) {
+    return <div>Loading...</div>;
   }
+
+  const graphNodes = members.map((member) => ({
+    id: member.id,
+    name: `${member.first_name} ${member.last_name}`,
+    color: member.gender === "male" ? "#7CB9E8" : "#F4C2C2",
+    photoUrl: member.photo_url,
+  }));
+
+  const graphLinks = relationships?.map((rel) => ({
+    source: rel.person1_id,
+    target: rel.person2_id,
+    type: rel.relationship_type,
+  })) || [];
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" size="icon" onClick={() => navigate("/trees")}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-3xl font-playfair">{tree.name}</h1>
-      </div>
-
       <TreeHeader
         treeName={tree.name}
         treeDescription={tree.description}
-        members={members || []}
+        members={members}
         onAddMember={handleAddMember}
-        onAddRelationship={addRelationshipMutation.mutate}
+        onAddRelationship={handleAddRelationship}
         isAddingMember={addMemberMutation.isPending}
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <div className="space-y-8">
-        <FamilyTreeGraph 
-          nodes={graphData.nodes} 
-          links={graphData.links} 
-        />
-        <OrgChart members={members || []} relationships={relationships || []} />
-        <MembersList members={members || []} />
-      </div>
+      <Tabs defaultValue="graph" className="mt-6">
+        <TabsList>
+          <TabsTrigger value="graph">Graph View</TabsTrigger>
+          <TabsTrigger value="org">Organization View</TabsTrigger>
+          <TabsTrigger value="list">List View</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="graph" className="mt-4">
+          <FamilyTreeGraph nodes={graphNodes} links={graphLinks} />
+        </TabsContent>
+        
+        <TabsContent value="org" className="mt-4">
+          <OrgChart members={members} relationships={relationships || []} />
+        </TabsContent>
+        
+        <TabsContent value="list" className="mt-4">
+          <MembersList members={members} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

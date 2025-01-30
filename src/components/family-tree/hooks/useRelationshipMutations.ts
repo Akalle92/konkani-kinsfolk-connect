@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Database } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
 
 type RelationshipType = Database["public"]["Enums"]["relationship_type"];
 
@@ -17,14 +17,14 @@ export function useRelationshipMutations(treeId: string | undefined) {
 
   const addRelationshipMutation = useMutation({
     mutationFn: async (newRelationship: NewRelationship) => {
+      if (!treeId) throw new Error("Tree ID is required");
+
       const { data, error } = await supabase
         .from("relationships")
         .insert([
           {
+            ...newRelationship,
             tree_id: treeId,
-            person1_id: newRelationship.person1_id,
-            person2_id: newRelationship.person2_id,
-            relationship_type: newRelationship.relationship_type,
           },
         ])
         .select()
@@ -40,15 +40,17 @@ export function useRelationshipMutations(treeId: string | undefined) {
         description: "Relationship added successfully",
       });
     },
-    onError: (error) => {
+    onError: (error: Error) => {
+      console.error("Error adding relationship:", error);
       toast({
-        variant: "destructive",
         title: "Error",
         description: "Failed to add relationship. Please try again.",
+        variant: "destructive",
       });
-      console.error("Error adding relationship:", error);
     },
   });
 
-  return { addRelationshipMutation };
+  return {
+    addRelationshipMutation,
+  };
 }
