@@ -34,8 +34,24 @@ export function TreesLoading() {
         {/* Center loading indicator */}
         <div className="flex items-center justify-center h-full">
           <div className="flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="text-lg text-muted-foreground">Loading family tree...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+            <p className="text-lg text-muted-foreground">Loading your family tree...</p>
+          </div>
+        </div>
+
+        {/* Skeleton nodes */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none">
+          <div className="flex gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col items-center">
+                <Skeleton className="h-24 w-48 rounded-lg mb-4" />
+                <div className="w-px h-8 bg-gray-300" />
+                <div className="flex gap-8 pt-8">
+                  <Skeleton className="h-24 w-48 rounded-lg" />
+                  <Skeleton className="h-24 w-48 rounded-lg" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
