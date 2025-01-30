@@ -9,6 +9,8 @@ export function useTreeData(treeId: string | undefined) {
     queryKey: ["tree", treeId],
     queryFn: async () => {
       console.log("Fetching tree details for ID:", treeId);
+      if (!treeId) throw new Error("Tree ID is required");
+      
       const { data, error } = await supabase
         .from("family_trees")
         .select("*")
@@ -20,12 +22,9 @@ export function useTreeData(treeId: string | undefined) {
         throw error;
       }
       console.log("Tree data received:", data);
-      if (!data) {
-        throw new Error("Tree not found");
-      }
       return data;
     },
-    enabled: !!treeId,
+    enabled: Boolean(treeId),
   });
 
   // Fetch family members
@@ -33,6 +32,8 @@ export function useTreeData(treeId: string | undefined) {
     queryKey: ["family_members", treeId],
     queryFn: async () => {
       console.log("Fetching members for tree ID:", treeId);
+      if (!treeId) throw new Error("Tree ID is required");
+      
       const { data, error } = await supabase
         .from("family_members")
         .select("*")
@@ -45,7 +46,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Members data received:", data);
       return data || [];
     },
-    enabled: !!treeId && !!tree,
+    enabled: Boolean(treeId),
   });
 
   // Fetch relationships
@@ -53,6 +54,8 @@ export function useTreeData(treeId: string | undefined) {
     queryKey: ["relationships", treeId],
     queryFn: async () => {
       console.log("Fetching relationships for tree ID:", treeId);
+      if (!treeId) throw new Error("Tree ID is required");
+      
       const { data, error } = await supabase
         .from("relationships")
         .select("*")
@@ -65,7 +68,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Relationships data received:", data);
       return data || [];
     },
-    enabled: !!treeId && !!tree && !!members,
+    enabled: Boolean(treeId),
   });
 
   const isLoading = isTreeLoading || isMembersLoading || isRelationshipsLoading;
@@ -76,14 +79,14 @@ export function useTreeData(treeId: string | undefined) {
     members,
     relationships,
     isLoading,
-    error
+    error,
   });
 
-  return { 
-    tree, 
-    members, 
+  return {
+    tree,
+    members,
     relationships,
     isLoading,
-    error
+    error,
   };
 }

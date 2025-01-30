@@ -33,7 +33,7 @@ const Trees = () => {
   const { data: trees, isLoading, error } = useQuery({
     queryKey: ['trees'],
     queryFn: async () => {
-      if (!user) {
+      if (!user?.id) {
         console.log('No user found in queryFn');
         throw new Error('User not authenticated');
       }
@@ -52,24 +52,22 @@ const Trees = () => {
       }
       
       console.log('Fetched trees:', data);
-      return data;
+      return data || [];
     },
-    enabled: !!user,
-    retry: 1,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Query error:', error);
-        toast({
-          title: "Error loading trees",
-          description: "There was a problem loading your family trees. Please try again.",
-          variant: "destructive"
-        });
-      }
-    }
+    enabled: Boolean(user?.id),
   });
 
   if (!user) {
     console.log('No user in component render');
+    return <TreesError />;
+  }
+
+  if (isLoading) {
+    return <TreesLoading />;
+  }
+
+  if (error) {
+    console.error('Error loading trees:', error);
     return <TreesError />;
   }
 
@@ -79,14 +77,7 @@ const Trees = () => {
         userId={user.id} 
         isAdmin={userRole?.role === 'admin'} 
       />
-      
-      {isLoading ? (
-        <TreesLoading />
-      ) : error ? (
-        <TreesError />
-      ) : (
-        <TreesList trees={trees || []} />
-      )}
+      <TreesList trees={trees || []} />
     </div>
   );
 };
