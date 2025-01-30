@@ -37,15 +37,12 @@ const TreeView = () => {
     }
   };
 
-  // Prepare graph data with proper type checking
   const graphData = useMemo(() => {
     if (!members || !relationships) return { nodes: [], links: [] };
 
-    console.log("Raw members data:", members);
-
     const nodes = members.map((member) => ({
       id: member.id,
-      name: `${member.first_name || ''} ${member.last_name || ''}`.trim(),
+      name: `${member.first_name} ${member.last_name}`.trim(),
       color: member.gender === "Male" 
         ? "#7393B3" 
         : member.gender === "Female" 
@@ -60,7 +57,6 @@ const TreeView = () => {
       type: rel.relationship_type,
     }));
 
-    console.log("Transformed graph data:", { nodes, links });
     return { nodes, links };
   }, [members, relationships]);
 
