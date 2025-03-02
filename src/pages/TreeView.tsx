@@ -70,7 +70,17 @@ const TreeView = () => {
   const handleAddRelationship = async (relationship: any) => {
     if (!id) return;
     try {
-      await addRelationshipMutation.mutateAsync(relationship);
+      const relationshipData = {
+        person1_id: relationship.person1_id,
+        person2_id: relationship.person2_id,
+        relationship_type: relationship.relationship_type,
+      };
+      
+      if (relationship.notes) {
+        relationshipData.notes = relationship.notes;
+      }
+      
+      await addRelationshipMutation.mutateAsync(relationshipData);
       toast.success("Relationship added successfully");
     } catch (error) {
       console.error("Error adding relationship:", error);

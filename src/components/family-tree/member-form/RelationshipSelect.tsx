@@ -1,3 +1,4 @@
+
 import {
   Select,
   SelectContent,
@@ -6,6 +7,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 interface RelationshipSelectProps {
   existingMembers: Array<{
@@ -17,6 +20,8 @@ interface RelationshipSelectProps {
   relatedMemberId: string;
   onRelationshipTypeChange: (value: string) => void;
   onRelatedMemberChange: (value: string) => void;
+  relationshipNote?: string;
+  onRelationshipNoteChange?: (value: string) => void;
 }
 
 export function RelationshipSelect({
@@ -25,14 +30,37 @@ export function RelationshipSelect({
   relatedMemberId,
   onRelationshipTypeChange,
   onRelatedMemberChange,
+  relationshipNote = "",
+  onRelationshipNoteChange,
 }: RelationshipSelectProps) {
+  const [isCustomType, setIsCustomType] = useState(
+    !["parent", "child", "spouse", "sibling"].includes(relationshipType) && relationshipType !== ""
+  );
+
+  const handleRelationshipTypeChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustomType(true);
+      // Don't update the actual relationship type yet - wait for custom input
+    } else {
+      setIsCustomType(false);
+      onRelationshipTypeChange(value);
+    }
+  };
+
+  const handleCustomTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onRelationshipTypeChange(e.target.value);
+  };
+
   if (!existingMembers || existingMembers.length === 0) return null;
 
   return (
     <>
       <div>
         <Label htmlFor="relationshipType">Relationship Type</Label>
-        <Select value={relationshipType} onValueChange={onRelationshipTypeChange}>
+        <Select 
+          value={isCustomType ? "custom" : relationshipType} 
+          onValueChange={handleRelationshipTypeChange}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select relationship type" />
           </SelectTrigger>
@@ -41,9 +69,22 @@ export function RelationshipSelect({
             <SelectItem value="child">Child</SelectItem>
             <SelectItem value="spouse">Spouse</SelectItem>
             <SelectItem value="sibling">Sibling</SelectItem>
+            <SelectItem value="custom">Custom...</SelectItem>
           </SelectContent>
         </Select>
+        
+        {isCustomType && (
+          <div className="mt-2">
+            <Input
+              type="text"
+              placeholder="Enter custom relationship type"
+              value={relationshipType}
+              onChange={handleCustomTypeChange}
+            />
+          </div>
+        )}
       </div>
+      
       <div>
         <Label htmlFor="relatedMember">Related To</Label>
         <Select value={relatedMemberId} onValueChange={onRelatedMemberChange}>
@@ -59,6 +100,19 @@ export function RelationshipSelect({
           </SelectContent>
         </Select>
       </div>
+      
+      {onRelationshipNoteChange && (
+        <div className="mt-2">
+          <Label htmlFor="relationshipNote">Relationship Note (Optional)</Label>
+          <Input
+            type="text"
+            id="relationshipNote"
+            placeholder="Add special details about this relationship"
+            value={relationshipNote}
+            onChange={(e) => onRelationshipNoteChange(e.target.value)}
+          />
+        </div>
+      )}
     </>
   );
 }

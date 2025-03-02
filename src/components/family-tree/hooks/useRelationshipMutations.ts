@@ -1,14 +1,16 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 
-type RelationshipType = Database["public"]["Enums"]["relationship_type"];
+type RelationshipType = Database["public"]["Enums"]["relationship_type"] | string;
 
 export type NewRelationship = {
   person1_id: string;
   person2_id: string;
   relationship_type: RelationshipType;
+  notes?: string;
 };
 
 export function useRelationshipMutations(treeId: string | undefined) {

@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef, useEffect } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { ZoomIn, ZoomOut, Maximize2, RefreshCw } from "lucide-react";
@@ -22,6 +21,7 @@ interface GraphLink {
   source: string;
   target: string;
   type: string;
+  notes?: string;
 }
 
 interface FamilyTreeGraphProps {
@@ -40,6 +40,12 @@ const RELATIONSHIP_STYLES: Record<string, { color: string; dashed?: boolean; wid
   "step-parent": { color: "#555", dashed: true, width: 1 },
   "step-child": { color: "#555", dashed: true, width: 1 },
   "in-law": { color: "#9333EA", dashed: true, width: 1 },
+  default: { color: "#22C55E", dashed: true, width: 1.5 }
+};
+
+// Helper to get relationship style
+const getRelationshipStyle = (type: string) => {
+  return RELATIONSHIP_STYLES[type] || RELATIONSHIP_STYLES.default;
 };
 
 // Gender-based node colors
@@ -80,7 +86,8 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
     const links = relationships.map(rel => ({
       source: rel.person1_id,
       target: rel.person2_id,
-      type: rel.relationship_type
+      type: rel.relationship_type,
+      notes: rel.notes
     }));
     
     setGraphData({ nodes, links });
@@ -258,16 +265,16 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
     ctx.fillText(name, x, y + nameYOffset);
   }, []);
 
-  // Custom link rendering
+  // Custom link rendering with support for notes and custom relationships
   const linkCanvasObject = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    const { source, target, type } = link;
+    const { source, target, type, notes } = link;
     if (!source || !target || typeof source.x !== 'number' || typeof target.x !== 'number') return;
 
     const start = { x: source.x, y: source.y };
     const end = { x: target.x, y: target.y };
     
     // Get style based on relationship type
-    const style = RELATIONSHIP_STYLES[type] || { color: "#999", width: 1 };
+    const style = getRelationshipStyle(type);
     
     // Draw link
     ctx.beginPath();
@@ -290,7 +297,7 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
     // Reset line dash
     ctx.setLineDash([]);
     
-    // Draw relationship type text for important relationships when zoomed in enough
+    // Draw relationship type text when zoomed in enough
     if (globalScale > 1.2 && type) {
       const textPos = {
         x: start.x + (end.x - start.x) * 0.5,
@@ -299,12 +306,13 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
       
       const fontSize = 10 / globalScale;
       ctx.font = `${fontSize}px Inter`;
+      
+      // Format the relationship text
+      const displayType = type.charAt(0).toUpperCase() + type.slice(1);
+      
+      // Background for relationship type
       ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-      
-      const text = type.charAt(0).toUpperCase() + type.slice(1);
-      const textWidth = ctx.measureText(text).width;
-      
-      // Draw text background
+      const textWidth = ctx.measureText(displayType).width;
       ctx.fillRect(
         textPos.x - textWidth / 2 - 2,
         textPos.y - fontSize / 2 - 1,
@@ -312,11 +320,39 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
         fontSize + 2
       );
       
-      // Draw text
+      // Draw relationship type
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = style.color;
-      ctx.fillText(text, textPos.x, textPos.y);
+      ctx.fillText(displayType, textPos.x, textPos.y);
+      
+      // Show notes if present and zoom is sufficient
+      if (notes && globalScale > 1.5) {
+        const notePos = {
+          x: textPos.x,
+          y: textPos.y + fontSize + 2
+        };
+        
+        const smallerFontSize = 8 / globalScale;
+        ctx.font = `italic ${smallerFontSize}px Inter`;
+        
+        // Truncate long notes
+        const noteText = notes.length > 20 ? `${notes.substring(0, 20)}...` : notes;
+        const noteWidth = ctx.measureText(noteText).width;
+        
+        // Draw note background
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fillRect(
+          notePos.x - noteWidth / 2 - 2,
+          notePos.y - smallerFontSize / 2 - 1,
+          noteWidth + 4,
+          smallerFontSize + 2
+        );
+        
+        // Draw note text
+        ctx.fillStyle = "#666666";
+        ctx.fillText(noteText, notePos.x, notePos.y);
+      }
     }
   }, []);
 

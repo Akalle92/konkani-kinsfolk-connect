@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -17,9 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 
-type RelationshipType = "parent" | "child" | "spouse" | "sibling";
+type StandardRelationshipType = "parent" | "child" | "spouse" | "sibling";
 
 interface FamilyMember {
   id: string;
@@ -32,7 +35,8 @@ interface AddRelationshipDialogProps {
   onAddRelationship: (relationship: {
     person1_id: string;
     person2_id: string;
-    relationship_type: RelationshipType;
+    relationship_type: string;
+    notes?: string;
   }) => void;
   isLoading: boolean;
 }
@@ -47,8 +51,24 @@ export function AddRelationshipDialog({
   const [relationship, setRelationship] = useState({
     person1Id: "",
     person2Id: "",
-    relationshipType: "" as RelationshipType,
+    relationshipType: "",
+    notes: "",
   });
+  const [isCustomType, setIsCustomType] = useState(false);
+
+  const handleRelationshipTypeChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustomType(true);
+      setRelationship({ ...relationship, relationshipType: "" });
+    } else {
+      setIsCustomType(false);
+      setRelationship({ ...relationship, relationshipType: value });
+    }
+  };
+
+  const handleCustomTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRelationship({ ...relationship, relationshipType: e.target.value });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +76,7 @@ export function AddRelationshipDialog({
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
       });
       return;
     }
@@ -74,14 +94,21 @@ export function AddRelationshipDialog({
       person1_id: relationship.person1Id,
       person2_id: relationship.person2Id,
       relationship_type: relationship.relationshipType,
+      notes: relationship.notes || undefined,
     });
     
     setIsOpen(false);
     setRelationship({
       person1Id: "",
       person2Id: "",
-      relationshipType: "" as RelationshipType,
+      relationshipType: "",
+      notes: "",
     });
+    setIsCustomType(false);
+  };
+
+  const isStandardType = (type: string): type is StandardRelationshipType => {
+    return ["parent", "child", "spouse", "sibling"].includes(type);
   };
 
   return (
@@ -92,7 +119,7 @@ export function AddRelationshipDialog({
           Add Relationship
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Relationship</DialogTitle>
           <DialogDescription>
@@ -120,13 +147,12 @@ export function AddRelationshipDialog({
               </SelectContent>
             </Select>
           </div>
+          
           <div>
             <Label htmlFor="relationshipType">Relationship Type</Label>
             <Select
-              value={relationship.relationshipType}
-              onValueChange={(value: RelationshipType) =>
-                setRelationship({ ...relationship, relationshipType: value })
-              }
+              value={isCustomType ? "custom" : relationship.relationshipType}
+              onValueChange={handleRelationshipTypeChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select relationship type" />
@@ -136,9 +162,22 @@ export function AddRelationshipDialog({
                 <SelectItem value="child">Child</SelectItem>
                 <SelectItem value="spouse">Spouse</SelectItem>
                 <SelectItem value="sibling">Sibling</SelectItem>
+                <SelectItem value="custom">Custom...</SelectItem>
               </SelectContent>
             </Select>
+            
+            {isCustomType && (
+              <div className="mt-2">
+                <Input
+                  type="text"
+                  placeholder="Enter custom relationship type"
+                  value={relationship.relationshipType}
+                  onChange={handleCustomTypeChange}
+                />
+              </div>
+            )}
           </div>
+          
           <div>
             <Label htmlFor="person2">Second Person</Label>
             <Select
@@ -159,6 +198,18 @@ export function AddRelationshipDialog({
               </SelectContent>
             </Select>
           </div>
+          
+          <div>
+            <Label htmlFor="notes">Relationship Notes (Optional)</Label>
+            <Textarea
+              id="notes"
+              placeholder="Add special details about this relationship"
+              value={relationship.notes}
+              onChange={(e) => setRelationship({ ...relationship, notes: e.target.value })}
+              className="min-h-[80px]"
+            />
+          </div>
+          
           <div className="flex justify-end space-x-2">
             <Button
               type="button"
