@@ -2,19 +2,22 @@
 import { useParams } from "react-router-dom";
 import { TreeHeader } from "@/components/family-tree/TreeHeader";
 import { MembersList } from "@/components/family-tree/MembersList";
+import { FamilyTreeVisualization } from "@/components/family-tree/FamilyTreeVisualization";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TreesLoading } from "@/components/trees/TreesLoading";
 import { TreesError } from "@/components/trees/TreesError";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TreeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("list");
   
   useEffect(() => {
     if (!user) {
@@ -77,10 +80,26 @@ const TreeView = () => {
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <div className="mt-6">
-        <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
-        <MembersList members={members} />
-      </div>
+      <Tabs defaultValue="list" value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList>
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="tree">Tree Visualization</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="list">
+          <div className="mt-6">
+            <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
+            <MembersList members={members} />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="tree">
+          <FamilyTreeVisualization 
+            members={members} 
+            relationships={relationships || []} 
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
