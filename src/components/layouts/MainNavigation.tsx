@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
   Home,
@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const MainNavigation = () => {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const toggleMenu = () => {
@@ -26,6 +28,22 @@ const MainNavigation = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+      toast("Signed out successfully", {
+        description: "You have been logged out",
+      });
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast("Error signing out", {
+        description: "There was a problem signing out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const navItems = [
@@ -78,7 +96,7 @@ const MainNavigation = () => {
                 <span className="text-sm text-muted-foreground mr-2">
                   {user.email?.split('@')[0]}
                 </span>
-                <Button variant="outline" size="sm" onClick={signOut}>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>
@@ -129,7 +147,7 @@ const MainNavigation = () => {
                 variant="outline" 
                 className="w-full justify-start mt-4"
                 onClick={() => {
-                  signOut();
+                  handleSignOut();
                   closeMenu();
                 }}
               >
