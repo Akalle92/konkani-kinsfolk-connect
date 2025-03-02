@@ -1,33 +1,41 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
-import { Toaster } from "@/components/ui/toaster";
-import Auth from './pages/Auth';
-import Trees from './pages/Trees';
-import TreeView from './pages/TreeView';
-import Index from './pages/Index';
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
+import { AuthProvider } from "./contexts/AuthContext";
+import MainLayout from "./components/layouts/MainLayout";
+
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Trees from "./pages/Trees";
+import TreeView from "./pages/TreeView";
+import Dashboard from "./pages/Dashboard";
 
+import "./App.css";
+
+// Create a client for React Query
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
+    <Router>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Toaster richColors position="top-right" />
           <Routes>
-            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/trees" element={<Trees />} />
-            <Route path="/trees/:id" element={<TreeView />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+            <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+            <Route path="/trees" element={<MainLayout><Trees /></MainLayout>} />
+            <Route path="/trees/:id" element={<MainLayout><TreeView /></MainLayout>} />
           </Routes>
-        </Router>
-        <Toaster />
-      </AuthProvider>
-    </QueryClientProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </Router>
   );
 }
 
