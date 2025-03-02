@@ -28,7 +28,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/" element={<MainLayout><Index /></MainLayout>} />
+            <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="/trees" element={<MainLayout><Trees /></MainLayout>} />
             <Route path="/trees/:id" element={<MainLayout><TreeView /></MainLayout>} />
