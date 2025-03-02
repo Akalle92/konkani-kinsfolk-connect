@@ -1,10 +1,15 @@
 
 import React from "react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users } from "lucide-react";
 
 export function EmptyGraphMessage() {
   return (
-    <div className="flex items-center justify-center h-full text-gray-500">
-      No family members added yet. Add members using the button above.
-    </div>
+    <EmptyState
+      title="No family members added yet"
+      description="Add members using the button above to start building your family tree."
+      icon={<Users className="w-12 h-12 opacity-70" />}
+      className="h-full"
+    />
   );
 }

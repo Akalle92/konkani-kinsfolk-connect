@@ -1,4 +1,8 @@
+
 import { TreeCard } from '@/components/trees/TreeCard';
+import { EmptyState } from '@/components/ui/empty-state';
+import { FolderTree } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Tree {
   id: string;
@@ -12,16 +16,21 @@ interface TreesListProps {
 }
 
 export function TreesList({ trees }: TreesListProps) {
+  const navigate = useNavigate();
+
   if (trees.length === 0) {
     return (
-      <div className="text-center py-12 bg-accent rounded-lg">
-        <p className="text-accent-foreground">
-          You haven't created any family trees yet.
-        </p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Click the "Create New Tree" button to get started.
-        </p>
-      </div>
+      <EmptyState
+        title="No family trees yet"
+        description="You haven't created any family trees yet. Click the button below to get started."
+        icon={<FolderTree className="w-12 h-12 opacity-70" />}
+        action={{
+          label: "Create New Tree",
+          onClick: () => document.getElementById("create-tree-trigger")?.click(),
+        }}
+        variant="outlined"
+        className="py-12"
+      />
     );
   }
 
