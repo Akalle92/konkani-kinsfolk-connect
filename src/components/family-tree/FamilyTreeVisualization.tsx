@@ -1,8 +1,9 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Button } from "@/components/ui/button";
-import { ZoomIn, ZoomOut, RefreshCw, Plus } from "lucide-react";
+import { ZoomIn, ZoomOut, RefreshCw } from "lucide-react";
+import './FamilyTreeVisualization.css';
 
 interface FamilyMember {
   id: string;
@@ -27,6 +28,7 @@ interface FamilyTreeVisualizationProps {
 
 export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVisualizationProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Process the members and relationships into a hierarchical structure
   const processDataForD3 = () => {
@@ -190,10 +192,7 @@ export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVi
       .attr('class', 'link')
       .attr('d', d3.linkHorizontal()
         .x(d => d.y)
-        .y(d => d.x))
-      .attr('fill', 'none')
-      .attr('stroke', '#ccc')
-      .attr('stroke-width', '1.5px');
+        .y(d => d.x));
 
     // Add nodes
     const node = svg.selectAll('.node')
@@ -211,16 +210,14 @@ export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVi
         return d.data.gender === 'male' ? '#4682B4' : 
                d.data.gender === 'female' ? '#FF69B4' : '#9370DB';
       })
-      .style('stroke', d => d.data.virtual ? '#ccc' : '#333')
-      .style('stroke-width', '2px');
+      .style('stroke', d => d.data.virtual ? '#ccc' : '#333');
 
     // Add labels
     node.append('text')
       .attr('dy', '.35em')
       .attr('x', d => d.children ? -13 : 13)
       .style('text-anchor', d => d.children ? 'end' : 'start')
-      .text(d => d.data.name)
-      .style('font-size', '12px');
+      .text(d => d.data.name);
 
     // Add zoom functionality
     const zoomHandler = d3.zoom()
@@ -235,22 +232,25 @@ export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVi
         zoomHandler.transform,
         d3.zoomIdentity.translate(margin.left, margin.top)
       );
-    
   }, [members, relationships]);
 
+  // Zoom functionality
   const handleZoomIn = () => {
+    if (!svgRef.current) return;
     d3.select(svgRef.current)
       .transition()
       .call(d3.zoom().scaleBy, 1.2);
   };
 
   const handleZoomOut = () => {
+    if (!svgRef.current) return;
     d3.select(svgRef.current)
       .transition()
       .call(d3.zoom().scaleBy, 0.8);
   };
 
   const handleResetView = () => {
+    if (!svgRef.current) return;
     d3.select(svgRef.current)
       .transition()
       .call(
@@ -260,7 +260,7 @@ export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVi
   };
 
   return (
-    <div className="mt-6">
+    <div className="mt-6" ref={containerRef}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Family Tree Visualization</h2>
         <div className="flex gap-2">
@@ -279,8 +279,14 @@ export function FamilyTreeVisualization({ members, relationships }: FamilyTreeVi
         </div>
       </div>
       
-      <div className="border rounded-lg overflow-hidden bg-white">
-        <svg ref={svgRef} width="100%" height="600"></svg>
+      <div className="border rounded-lg overflow-hidden bg-white p-4">
+        {members.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-gray-500">No family members added yet. Add members to see the visualization.</p>
+          </div>
+        ) : (
+          <svg ref={svgRef} width="100%" height="600"></svg>
+        )}
       </div>
     </div>
   );
