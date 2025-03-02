@@ -6,16 +6,19 @@ import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TreesLoading } from "@/components/trees/TreesLoading";
 import { TreesError } from "@/components/trees/TreesError";
 import { toast } from "sonner";
+import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TreeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("tree");
   
   useEffect(() => {
     if (!user) {
@@ -93,10 +96,27 @@ const TreeView = () => {
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <div className="mt-6">
-        <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
-        <MembersList members={members || []} />
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList className="mb-4">
+          <TabsTrigger value="tree">Tree Visualization</TabsTrigger>
+          <TabsTrigger value="list">Members List</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="tree" className="mt-4">
+          <div className="rounded-lg bg-card">
+            <FamilyTreeGraph 
+              members={members || []} 
+              relationships={relationships || []} 
+              className="animate-fade-in"
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="list" className="mt-4">
+          <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
+          <MembersList members={members || []} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
