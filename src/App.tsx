@@ -25,10 +25,13 @@ function App() {
         <AuthProvider>
           <Toaster richColors position="top-right" />
           <Routes>
+            {/* Public routes that don't require authentication */}
+            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/" element={<Index />} />
+            
+            {/* Protected routes that require authentication */}
             <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="/trees" element={<MainLayout><Trees /></MainLayout>} />
             <Route path="/trees/:id" element={<MainLayout><TreeView /></MainLayout>} />
