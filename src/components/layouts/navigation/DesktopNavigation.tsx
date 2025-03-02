@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NavItem } from "./types";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DesktopNavigationProps {
   navItems: NavItem[];
@@ -11,9 +12,16 @@ interface DesktopNavigationProps {
 }
 
 const DesktopNavigation = ({ navItems, isActive }: DesktopNavigationProps) => {
+  const { user } = useAuth();
+  
+  // Filter navigation items based on authentication status
+  const filteredNavItems = navItems.filter(item => 
+    !item.requiresAuth || (item.requiresAuth && user)
+  );
+
   return (
     <div className="hidden md:flex md:items-center md:space-x-1">
-      {navItems.map((item) => (
+      {filteredNavItems.map((item) => (
         <Button
           key={item.path}
           asChild

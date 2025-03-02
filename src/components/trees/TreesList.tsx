@@ -2,7 +2,6 @@
 import { TreeCard } from '@/components/trees/TreeCard';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FolderTree } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 interface Tree {
   id: string;
@@ -16,8 +15,6 @@ interface TreesListProps {
 }
 
 export function TreesList({ trees }: TreesListProps) {
-  const navigate = useNavigate();
-
   if (trees.length === 0) {
     return (
       <EmptyState

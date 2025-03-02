@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -62,6 +63,10 @@ export const TreeCard = ({ id, name, description, created_at }: TreeCardProps) =
     },
   });
 
+  const handleViewTree = () => {
+    navigate(`/trees/${id}`);
+  };
+
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
@@ -77,7 +82,7 @@ export const TreeCard = ({ id, name, description, created_at }: TreeCardProps) =
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate(`/trees/${id}`)}
+          onClick={handleViewTree}
           className="hover:bg-accent"
         >
           <Pencil className="h-4 w-4 mr-2" />
