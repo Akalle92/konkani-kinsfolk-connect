@@ -41,7 +41,7 @@ const MainNavigation = () => {
       console.error("Sign out error:", error);
       toast("Error signing out", {
         description: "There was a problem signing out. Please try again.",
-        variant: "destructive",
+        style: { backgroundColor: 'red', color: 'white' }
       });
     }
   };
