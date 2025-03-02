@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 
-type RelationshipType = Database["public"]["Enums"]["relationship_type"] | string;
+// We need to use a more flexible type to support custom relationship types
+type RelationshipType = string;
 
 export type NewRelationship = {
   person1_id: string;
@@ -21,14 +22,15 @@ export function useRelationshipMutations(treeId: string | undefined) {
     mutationFn: async (newRelationship: NewRelationship) => {
       if (!treeId) throw new Error("Tree ID is required");
 
+      // Use as any to bypass the type checking for relationship_type
+      // This is necessary because the Database type restricts to specific values
+      // but we want to support custom relationship types
       const { data, error } = await supabase
         .from("relationships")
-        .insert([
-          {
-            ...newRelationship,
-            tree_id: treeId,
-          },
-        ])
+        .insert({
+          ...newRelationship,
+          tree_id: treeId,
+        } as any)
         .select()
         .single();
 

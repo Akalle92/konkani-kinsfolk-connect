@@ -13,6 +13,13 @@ import { toast } from "sonner";
 import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+type RelationshipData = {
+  person1_id: string;
+  person2_id: string;
+  relationship_type: string;
+  notes?: string;
+};
+
 const TreeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -67,20 +74,15 @@ const TreeView = () => {
     }
   };
 
-  const handleAddRelationship = async (relationship: any) => {
+  const handleAddRelationship = async (relationship: RelationshipData) => {
     if (!id) return;
     try {
-      const relationshipData = {
+      await addRelationshipMutation.mutateAsync({
         person1_id: relationship.person1_id,
         person2_id: relationship.person2_id,
         relationship_type: relationship.relationship_type,
-      };
-      
-      if (relationship.notes) {
-        relationshipData.notes = relationship.notes;
-      }
-      
-      await addRelationshipMutation.mutateAsync(relationshipData);
+        notes: relationship.notes
+      });
       toast.success("Relationship added successfully");
     } catch (error) {
       console.error("Error adding relationship:", error);
