@@ -1,0 +1,36 @@
+
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { NavItem } from "./types";
+
+interface DesktopNavigationProps {
+  navItems: NavItem[];
+  isActive: (path: string) => boolean;
+}
+
+const DesktopNavigation = ({ navItems, isActive }: DesktopNavigationProps) => {
+  return (
+    <div className="hidden md:flex md:items-center md:space-x-1">
+      {navItems.map((item) => (
+        <Button
+          key={item.path}
+          asChild
+          variant={isActive(item.path) ? "default" : "ghost"}
+          className={cn(
+            "h-10",
+            isActive(item.path) && "bg-primary/10 text-primary hover:bg-primary/20"
+          )}
+        >
+          <Link to={item.path}>
+            {item.icon}
+            {item.label}
+          </Link>
+        </Button>
+      ))}
+    </div>
+  );
+};
+
+export default DesktopNavigation;
