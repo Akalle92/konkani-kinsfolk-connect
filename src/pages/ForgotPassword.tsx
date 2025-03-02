@@ -7,30 +7,28 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const { toast } = useToast();
-  const { resetPassword } = useAuth();
+  const { resetPassword, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!email) {
+      setError("Please enter your email address");
+      return;
+    }
+    
     setError("");
     setSuccess(false);
 
     try {
-      // Use Supabase directly to ensure we can set the correct redirect URL
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) throw error;
-      
+      await resetPassword(email);
       setSuccess(true);
       toast({
         title: "Password reset email sent",
@@ -41,12 +39,10 @@ const ForgotPassword = () => {
       const message = error instanceof Error ? error.message : "An error occurred";
       setError(message);
       toast({
-        variant: "destructive",
-        title: "Reset Password Error",
+        title: "Error",
         description: "There was a problem sending the password reset email.",
+        variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -67,10 +63,13 @@ const ForgotPassword = () => {
           <div className="text-center space-y-4">
             <Alert className="mb-6 bg-green-50 border-green-200">
               <AlertDescription>
-                Password reset email sent. Please check your inbox and follow the instructions.
+                Password reset email sent. Please check your inbox (and spam folder) for instructions.
               </AlertDescription>
             </Alert>
-            <Link to="/auth" className="text-primary hover:underline block">
+            <p className="text-sm text-muted-foreground">
+              If you don't see the email within a few minutes, please try again or contact support.
+            </p>
+            <Link to="/auth" className="text-primary hover:underline block mt-4">
               Return to login
             </Link>
           </div>
@@ -86,6 +85,7 @@ const ForgotPassword = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full"
+                autoComplete="email"
               />
               <p className="text-sm text-muted-foreground">
                 We'll send you a link to reset your password.
@@ -96,7 +96,14 @@ const ForgotPassword = () => {
               className="w-full bg-primary hover:bg-primary/90"
               disabled={loading}
             >
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
             </Button>
             <div className="text-center">
               <Link to="/auth" className="text-primary hover:underline">

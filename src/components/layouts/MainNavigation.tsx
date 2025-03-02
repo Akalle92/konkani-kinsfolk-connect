@@ -10,17 +10,20 @@ import {
   LogOut,
   LogIn,
   Menu,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const MainNavigation = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -32,17 +35,22 @@ const MainNavigation = () => {
 
   const handleSignOut = async () => {
     try {
+      setIsSigningOut(true);
       await signOut();
       navigate('/auth');
-      toast("Signed out successfully", {
-        description: "You have been logged out",
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out"
       });
     } catch (error) {
       console.error("Sign out error:", error);
-      toast("Error signing out", {
+      toast({
+        title: "Error signing out",
         description: "There was a problem signing out. Please try again.",
         style: { backgroundColor: 'red', color: 'white' }
       });
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -50,7 +58,6 @@ const MainNavigation = () => {
     { path: "/", label: "Home", icon: <Home className="mr-2 h-4 w-4" /> },
     { path: "/dashboard", label: "Dashboard", icon: <User className="mr-2 h-4 w-4" /> },
     { path: "/trees", label: "Family Trees", icon: <TreePine className="mr-2 h-4 w-4" /> },
-    // Add more nav items as they're developed
   ];
 
   const isActive = (path: string) => {
@@ -91,14 +98,28 @@ const MainNavigation = () => {
           </div>
 
           <div className="hidden md:flex md:items-center md:space-x-2">
-            {user ? (
+            {loading ? (
+              <div className="flex items-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            ) : user ? (
               <>
                 <span className="text-sm text-muted-foreground mr-2">
                   {user.email?.split('@')[0]}
                 </span>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                >
+                  {isSigningOut ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <LogOut className="mr-2 h-4 w-4" />
+                  )}
+                  {isSigningOut ? "Signing out..." : "Logout"}
                 </Button>
               </>
             ) : (
@@ -142,7 +163,12 @@ const MainNavigation = () => {
               </Button>
             ))}
             
-            {user ? (
+            {loading ? (
+              <div className="flex items-center py-2">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            ) : user ? (
               <Button 
                 variant="outline" 
                 className="w-full justify-start mt-4"
@@ -150,9 +176,14 @@ const MainNavigation = () => {
                   handleSignOut();
                   closeMenu();
                 }}
+                disabled={isSigningOut}
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                {isSigningOut ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="mr-2 h-4 w-4" />
+                )}
+                {isSigningOut ? "Signing out..." : "Logout"}
               </Button>
             ) : (
               <Button 
