@@ -11,12 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
-interface FamilyMember {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
+import { RelationshipTypeSelector } from "./RelationshipTypeSelector";
+import { FamilyMember } from "../types";
 
 interface RelationshipFormProps {
   members: FamilyMember[];
@@ -165,53 +161,3 @@ export function RelationshipForm({
     </form>
   );
 }
-
-interface RelationshipTypeSelectorProps {
-  value: string;
-  onValueChange: (value: string) => void;
-  isCustom: boolean;
-  customValue: string;
-  onCustomValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-function RelationshipTypeSelector({
-  value,
-  onValueChange,
-  isCustom,
-  customValue,
-  onCustomValueChange,
-}: RelationshipTypeSelectorProps) {
-  return (
-    <div>
-      <Label htmlFor="relationshipType">Relationship Type</Label>
-      <Select
-        value={value}
-        onValueChange={onValueChange}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Select relationship type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="parent">Parent</SelectItem>
-          <SelectItem value="child">Child</SelectItem>
-          <SelectItem value="spouse">Spouse</SelectItem>
-          <SelectItem value="sibling">Sibling</SelectItem>
-          <SelectItem value="custom">Custom...</SelectItem>
-        </SelectContent>
-      </Select>
-      
-      {isCustom && (
-        <div className="mt-2">
-          <Input
-            type="text"
-            placeholder="Enter custom relationship type"
-            value={customValue}
-            onChange={onCustomValueChange}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-import { Input } from "@/components/ui/input";

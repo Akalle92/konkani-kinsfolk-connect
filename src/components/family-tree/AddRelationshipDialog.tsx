@@ -11,12 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { RelationshipForm } from "./relationship-form/RelationshipForm";
-
-interface FamilyMember {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
+import { FamilyMember } from "./types";
 
 interface AddRelationshipDialogProps {
   members: FamilyMember[];
