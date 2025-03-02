@@ -14,8 +14,3 @@ export interface Relationship {
   person2_id: string;
   relationship_type: "parent" | "child" | "spouse" | "sibling";
 }
-
-export interface FamilyTreeVisualizationProps {
-  members: FamilyMember[];
-  relationships: Relationship[];
-}
