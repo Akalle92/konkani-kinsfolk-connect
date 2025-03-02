@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,12 +16,18 @@ export function useTreeData(treeId: string | undefined) {
         .from("family_trees")
         .select("*")
         .eq("id", treeId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching tree:", error);
         throw error;
       }
+      
+      if (!data) {
+        console.error("No tree found with ID:", treeId);
+        throw new Error("Tree not found");
+      }
+      
       console.log("Tree data received:", data);
       return data;
     },
@@ -46,7 +53,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Members data received:", data);
       return data || [];
     },
-    enabled: Boolean(treeId) && Boolean(tree),
+    enabled: Boolean(treeId),
   });
 
   // Fetch relationships
@@ -68,7 +75,7 @@ export function useTreeData(treeId: string | undefined) {
       console.log("Relationships data received:", data);
       return data || [];
     },
-    enabled: Boolean(treeId) && Boolean(members),
+    enabled: Boolean(treeId),
   });
 
   const isLoading = isTreeLoading || isMembersLoading || isRelationshipsLoading;
