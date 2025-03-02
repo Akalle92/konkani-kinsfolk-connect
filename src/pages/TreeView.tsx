@@ -1,16 +1,15 @@
+
 import { useParams } from "react-router-dom";
 import { TreeHeader } from "@/components/family-tree/TreeHeader";
 import { MembersList } from "@/components/family-tree/MembersList";
-import { OrgChart } from "@/components/family-tree/OrgChart";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TreesLoading } from "@/components/trees/TreesLoading";
-import { TreesError } from "@/components/trees/TreesError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { TreesLoading } from "@/components/trees/TreesLoading";
+import { TreesError } from "@/components/trees/TreesError";
 
 const TreeView = () => {
   const { id } = useParams();
@@ -76,18 +75,10 @@ const TreeView = () => {
         isAddingRelationship={addRelationshipMutation.isPending}
       />
 
-      <Tabs defaultValue="chart" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="chart">Family Tree</TabsTrigger>
-          <TabsTrigger value="list">Members List</TabsTrigger>
-        </TabsList>
-        <TabsContent value="chart">
-          <OrgChart members={members} relationships={relationships || []} />
-        </TabsContent>
-        <TabsContent value="list">
-          <MembersList members={members} />
-        </TabsContent>
-      </Tabs>
+      <div className="mt-6">
+        <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
+        <MembersList members={members} />
+      </div>
     </div>
   );
 };
