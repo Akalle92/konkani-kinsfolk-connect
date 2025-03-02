@@ -31,10 +31,12 @@ const TreeView = () => {
   console.log("TreeView data:", { tree, members, relationships, isLoading, error });
 
   const handleAddMember = async (member: any) => {
+    if (!id) return;
     await addMemberMutation.mutateAsync(member);
   };
 
   const handleAddRelationship = async (relationship: any) => {
+    if (!id) return;
     await addRelationshipMutation.mutateAsync(relationship);
   };
 
@@ -67,7 +69,7 @@ const TreeView = () => {
     <div className="container mx-auto py-8">
       <TreeHeader
         treeName={tree.name}
-        treeDescription={tree.description}
+        treeDescription={tree.description || ""}
         members={members}
         onAddMember={handleAddMember}
         onAddRelationship={handleAddRelationship}
