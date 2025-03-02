@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -13,6 +13,9 @@ interface GraphNode {
   x?: number;
   y?: number;
   photoUrl?: string;
+  isCurrentUser?: boolean;
+  fx?: number | null;
+  fy?: number | null;
 }
 
 interface GraphLink {
@@ -24,6 +27,7 @@ interface GraphLink {
 interface FamilyTreeGraphProps {
   members: any[];
   relationships: any[];
+  currentUserId?: string | null;
   className?: string;
 }
 
@@ -46,16 +50,21 @@ const GENDER_COLORS = {
   default: "#64748B" // Slate gray for unknown
 };
 
-export function FamilyTreeGraph({ members, relationships, className = "" }: FamilyTreeGraphProps) {
+export function FamilyTreeGraph({ members, relationships, currentUserId, className = "" }: FamilyTreeGraphProps) {
   const graphRef = useRef<any>();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({ nodes: [], links: [] });
   const isSmallScreen = useMediaQuery("(max-width: 640px)");
+  const [isInitialRender, setIsInitialRender] = useState(true);
   
   // Transform data when members or relationships change
   useEffect(() => {
     if (!members || !relationships) return;
     
-    console.log("Preparing graph data with:", { members: members.length, relationships: relationships.length });
+    console.log("Preparing graph data with:", { 
+      members: members.length, 
+      relationships: relationships.length,
+      currentUserId
+    });
     
     // Create nodes from members
     const nodes = members.map(member => ({
@@ -63,7 +72,8 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
       name: `${member.first_name} ${member.last_name}`,
       gender: member.gender,
       color: member.gender ? GENDER_COLORS[member.gender] || GENDER_COLORS.default : GENDER_COLORS.default,
-      photoUrl: member.photo_url
+      photoUrl: member.photo_url,
+      isCurrentUser: member.id === currentUserId
     }));
     
     // Create links from relationships
@@ -74,7 +84,53 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
     }));
     
     setGraphData({ nodes, links });
-  }, [members, relationships]);
+    setIsInitialRender(true);
+  }, [members, relationships, currentUserId]);
+
+  // Focus on current user node when graph data changes or component mounts
+  useEffect(() => {
+    if (isInitialRender && graphRef.current && graphData.nodes.length > 0 && currentUserId) {
+      // Find the current user node
+      const currentUserNode = graphData.nodes.find(node => node.id === currentUserId);
+      
+      if (currentUserNode) {
+        console.log("Centering view on current user:", currentUserId);
+        
+        // Wait for the graph to initialize properly
+        setTimeout(() => {
+          // Center the graph on the current user's node
+          graphRef.current.centerAt(
+            currentUserNode.x || 0, 
+            currentUserNode.y || 0, 
+            1000
+          );
+          // Set zoom level to see immediate relationships
+          graphRef.current.zoom(1.5, 1000);
+          
+          // Pin the current user's node at the center
+          const graphNodes = graphRef.current.graphData().nodes;
+          const updatedNodes = graphNodes.map((node: GraphNode) => {
+            if (node.id === currentUserId) {
+              return {
+                ...node,
+                fx: 0,  // Pin X at center
+                fy: 0   // Pin Y at center
+              };
+            }
+            return node;
+          });
+          
+          // Update the graph with the modified nodes
+          graphRef.current.graphData({
+            nodes: updatedNodes,
+            links: graphRef.current.graphData().links
+          });
+        }, 500);
+        
+        setIsInitialRender(false);
+      }
+    }
+  }, [graphData, currentUserId, isInitialRender]);
 
   const handleZoomIn = useCallback(() => {
     if (graphRef.current) {
@@ -97,22 +153,57 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
     }
   }, []);
 
+  const handleFocusOnUser = useCallback(() => {
+    if (!graphRef.current || !currentUserId) return;
+
+    // Find current user node
+    const nodes = graphRef.current.graphData().nodes;
+    const currentUserNode = nodes.find((node: GraphNode) => node.id === currentUserId);
+    
+    if (currentUserNode) {
+      // Center the view on the current user and zoom in slightly
+      graphRef.current.centerAt(
+        currentUserNode.x || 0, 
+        currentUserNode.y || 0, 
+        1000
+      );
+      graphRef.current.zoom(1.5, 1000);
+    }
+  }, [currentUserId]);
+
   // Custom node rendering function for the graph
   const nodeCanvasObject = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    const { x, y, name, color, photoUrl, gender } = node;
+    const { x, y, name, color, photoUrl, gender, isCurrentUser } = node;
     if (typeof x !== "number" || typeof y !== "number") return;
 
-    const size = 16 / globalScale;
+    // Make the current user's node slightly larger
+    const baseSize = isCurrentUser ? 18 : 16;
+    const size = baseSize / globalScale;
     const fontSize = 12 / globalScale;
     const nameYOffset = size + fontSize;
+
+    // Draw highlight/glow for current user
+    if (isCurrentUser) {
+      ctx.beginPath();
+      ctx.arc(x, y, size + 3 / globalScale, 0, 2 * Math.PI);
+      ctx.fillStyle = "rgba(255, 215, 0, 0.3)"; // Golden glow
+      ctx.fill();
+    }
 
     // Draw node circle
     ctx.beginPath();
     ctx.arc(x, y, size, 0, 2 * Math.PI);
     ctx.fillStyle = color || GENDER_COLORS.default;
     ctx.fill();
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 1.5 / globalScale;
+    
+    // Special border for current user
+    if (isCurrentUser) {
+      ctx.strokeStyle = "#FFD700"; // Gold border
+      ctx.lineWidth = 2.5 / globalScale;
+    } else {
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5 / globalScale;
+    }
     ctx.stroke();
 
     // Draw photo if available
@@ -136,11 +227,27 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
       }
     }
 
+    // Draw "You" label for current user
+    if (isCurrentUser) {
+      const youLabel = "YOU";
+      ctx.font = `bold ${fontSize}px Inter`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      // Draw background for "You" label
+      const labelWidth = ctx.measureText(youLabel).width;
+      ctx.fillStyle = "rgba(255, 215, 0, 0.8)";
+      ctx.fillRect(x - labelWidth / 2 - 2, y - size - fontSize - 4, labelWidth + 4, fontSize + 2);
+      
+      // Draw "You" text
+      ctx.fillStyle = "#000000";
+      ctx.fillText(youLabel, x, y - size - fontSize / 2 - 3);
+    }
+
     // Draw name
     ctx.font = `${fontSize}px Inter`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "black";
     
     // Draw text with white background for better readability
     const textWidth = ctx.measureText(name).width;
@@ -221,6 +328,7 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
           size="icon"
           onClick={handleZoomIn}
           className="bg-white/90 hover:bg-white"
+          title="Zoom In"
         >
           <ZoomIn className="h-4 w-4" />
         </Button>
@@ -229,6 +337,7 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
           size="icon"
           onClick={handleZoomOut}
           className="bg-white/90 hover:bg-white"
+          title="Zoom Out"
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
@@ -237,9 +346,21 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
           size="icon"
           onClick={handleCenter}
           className="bg-white/90 hover:bg-white"
+          title="Center View"
         >
           <Maximize2 className="h-4 w-4" />
         </Button>
+        {currentUserId && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleFocusOnUser}
+            className="bg-gold/10 hover:bg-gold/20 border-gold/50"
+            title="Focus on You"
+          >
+            <RefreshCw className="h-4 w-4 text-amber-600" />
+          </Button>
+        )}
       </div>
       
       {(!members || members.length === 0) ? (
@@ -269,6 +390,14 @@ export function FamilyTreeGraph({ members, relationships, className = "" }: Fami
             // Pin the node after dragging
             node.fx = node.x;
             node.fy = node.y;
+          }}
+          onEngineStop={() => {
+            // After initial rendering stabilizes, if this is the first render
+            // and we have a current user, center on them
+            if (isInitialRender && currentUserId && graphRef.current) {
+              handleFocusOnUser();
+              setIsInitialRender(false);
+            }
           }}
         />
       )}

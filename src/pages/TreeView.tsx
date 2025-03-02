@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { TreeHeader } from "@/components/family-tree/TreeHeader";
 import { MembersList } from "@/components/family-tree/MembersList";
@@ -19,6 +18,7 @@ const TreeView = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("tree");
+  const [currentUserMemberId, setCurrentUserMemberId] = useState<string | null>(null);
   
   useEffect(() => {
     if (!user) {
@@ -36,6 +36,25 @@ const TreeView = () => {
   const { addRelationshipMutation } = useRelationshipMutations(id);
 
   console.log("TreeView data:", { tree, members, relationships, isLoading, error });
+
+  useEffect(() => {
+    if (user && members && members.length > 0) {
+      const userEmailPrefix = user.email?.split('@')[0] || '';
+      
+      const currentMember = members.find(member => 
+        `${member.first_name}`.toLowerCase() === userEmailPrefix.toLowerCase() ||
+        member.notes?.includes(user.email || '')
+      );
+      
+      if (currentMember) {
+        console.log("Current user found in family tree:", currentMember.id);
+        setCurrentUserMemberId(currentMember.id);
+      } else {
+        console.log("Current user not found in this family tree");
+        setCurrentUserMemberId(null);
+      }
+    }
+  }, [user, members]);
 
   const handleAddMember = async (member: any) => {
     if (!id) return;
@@ -81,7 +100,8 @@ const TreeView = () => {
   console.log("Rendering TreeView with data:", {
     treeName: tree.name,
     memberCount: members?.length || 0,
-    relationshipCount: relationships?.length || 0
+    relationshipCount: relationships?.length || 0,
+    currentUserMemberId
   });
 
   return (
@@ -107,6 +127,7 @@ const TreeView = () => {
             <FamilyTreeGraph 
               members={members || []} 
               relationships={relationships || []} 
+              currentUserId={currentUserMemberId}
               className="animate-fade-in"
             />
           </div>
