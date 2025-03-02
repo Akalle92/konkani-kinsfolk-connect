@@ -73,7 +73,7 @@ const MainNavigation = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center font-semibold text-xl">
               <TreePine className="mr-2 h-6 w-6" />
-              <span className="hidden md:inline-block">Sarawat Community</span>
+              <span className="hidden md:inline-block">Saraswat Community</span>
             </Link>
           </div>
 

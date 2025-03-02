@@ -15,7 +15,7 @@ export const FeatureSection = ({ features }: FeatureSectionProps) => {
     <section className="py-24 bg-white">
       <div className="container mx-auto px-4">
         <h3 className="text-4xl font-playfair font-bold text-center mb-16 text-primary animate-fade-in">
-          Why Create Your Sarawat Family Tree?
+          Why Create Your Saraswat Family Tree?
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {features.map((feature, index) => (

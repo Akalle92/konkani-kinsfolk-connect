@@ -11,7 +11,7 @@ export const features = [
   {
     icon: React.createElement(Globe, { className: "w-8 h-8 text-primary" }),
     title: "Global Network",
-    description: "Connect with Sarawat families across the world and discover your extended family.",
+    description: "Connect with Saraswat families across the world and discover your extended family.",
   },
   {
     icon: React.createElement(Heart, { className: "w-8 h-8 text-primary" }),
@@ -48,7 +48,7 @@ export const testimonials = [
   {
     name: "Asha Pai",
     location: "San Francisco, USA",
-    quote: "Living abroad, I felt disconnected from my Sarawat culture. This platform helped me reconnect with my extended family and cultural identity.",
+    quote: "Living abroad, I felt disconnected from my Saraswat culture. This platform helped me reconnect with my extended family and cultural identity.",
     avatar: "/placeholder.svg",
   },
 ];

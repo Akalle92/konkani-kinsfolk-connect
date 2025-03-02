@@ -15,7 +15,7 @@ export const CtaSection = ({ navigateToAuth }: CtaSectionProps) => {
       </div>
       <div className="container mx-auto px-4 text-center relative z-10">
         <h3 className="text-3xl md:text-4xl font-playfair font-bold text-white mb-6">
-          Ready to Connect With Your Sarawat Roots?
+          Ready to Connect With Your Saraswat Roots?
         </h3>
         <p className="text-white/90 max-w-2xl mx-auto mb-8 text-lg">
           Join our community today and start building your family tree, connecting with relatives, and preserving your heritage for generations to come.
