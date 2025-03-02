@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -76,7 +75,7 @@ export const AnimatedHero = ({ onExploreClick, user }: AnimatedHeroProps) => {
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-primary leading-tight">
                 Connect With Your{" "}
                 <span className="text-secondary relative inline-block">
-                  Konkani Heritage
+                  Sarawat Heritage
                   <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 358 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 9C72.6667 5 142.333 3 212 3C281.667 3 351.333 5 421 9" stroke="#FF6600" strokeWidth="4" strokeLinecap="round"/>
                   </svg>

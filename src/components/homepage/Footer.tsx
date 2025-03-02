@@ -10,7 +10,7 @@ export const Footer = () => {
           <div className="space-y-4">
             <h4 className="font-playfair text-2xl mb-4">About Konkannect</h4>
             <p className="text-white/80 leading-relaxed">
-              Dedicated to preserving and connecting Konkani families worldwide through our innovative family tree platform.
+              Dedicated to preserving and connecting Sarawat families worldwide through our innovative family tree platform.
             </p>
             <div className="flex space-x-4 pt-4">
               <a href="#" className="text-white/80 hover:text-secondary transition-colors" aria-label="Facebook">
