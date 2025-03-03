@@ -24,11 +24,11 @@ const Index = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate("/auth");
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
       });
+      navigate("/auth");
     } catch (error) {
       console.error("Sign out error:", error);
       toast({

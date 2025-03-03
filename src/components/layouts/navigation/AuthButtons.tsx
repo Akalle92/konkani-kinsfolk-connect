@@ -37,12 +37,10 @@ const AuthButtons = ({
           size="sm" 
           onClick={handleSignOut}
           disabled={isSigningOut}
+          isLoading={isSigningOut}
+          loadingText="Signing out..."
         >
-          {isSigningOut ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <LogOut className="mr-2 h-4 w-4" />
-          )}
+          {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
           {isSigningOut ? "Signing out..." : "Logout"}
         </Button>
       </>

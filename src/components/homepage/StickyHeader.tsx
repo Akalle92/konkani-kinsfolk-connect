@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { TreePine } from "lucide-react";
+import { TreePine, LogOut } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 
 interface StickyHeaderProps {
   user: User | null;
-  onSignOut: () => void;
+  onSignOut: () => Promise<void>;
   navigateToAuth: () => void;
   navigateToTrees: () => void;
 }
@@ -14,6 +14,18 @@ interface StickyHeaderProps {
 export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees }: StickyHeaderProps) => {
   const [isSticky, setIsSticky] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true);
+      await onSignOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,8 +68,12 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
                 </Button>
                 <Button
                   className="bg-secondary text-black hover:bg-secondary/90 font-semibold"
-                  onClick={onSignOut}
+                  onClick={handleSignOut}
+                  isLoading={isSigningOut}
+                  loadingText="Signing out..."
+                  disabled={isSigningOut}
                 >
+                  {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
                   Sign Out
                 </Button>
               </>
@@ -132,8 +148,12 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
                   </Button>
                   <Button
                     className="bg-secondary text-black hover:bg-secondary/90 font-semibold justify-start"
-                    onClick={onSignOut}
+                    onClick={handleSignOut}
+                    isLoading={isSigningOut}
+                    loadingText="Signing out..."
+                    disabled={isSigningOut}
                   >
+                    {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
                     Sign Out
                   </Button>
                 </>
