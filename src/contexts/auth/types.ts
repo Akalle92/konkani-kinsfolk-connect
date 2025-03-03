@@ -13,5 +13,6 @@ export interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
+  resetUserState: () => void; // New function to reset user state
   loading: boolean;
 }

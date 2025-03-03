@@ -22,6 +22,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Function to reset all user states
+  const resetUserState = () => {
+    console.log("Resetting all user states");
+    setSession(null);
+    setUser(null);
+    setUserRole(null);
+  };
+
   useEffect(() => {
     console.log("Auth Provider initializing...");
     
@@ -116,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await signOutOperation(params => toast(params));
+      resetUserState(); // Explicitly reset state after sign out
     } finally {
       setLoading(false);
     }
@@ -150,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut,
         resetPassword,
         updatePassword,
+        resetUserState, // Expose the reset function
         loading,
       }}
     >
