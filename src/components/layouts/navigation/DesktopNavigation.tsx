@@ -1,10 +1,10 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NavItem } from "./types";
-import { useAuth } from "@/contexts/auth";  // Fixed import path
+import { useAuth } from "@/contexts/auth";
 
 interface DesktopNavigationProps {
   navItems: NavItem[];
@@ -31,9 +31,11 @@ const DesktopNavigation = ({ navItems, isActive }: DesktopNavigationProps) => {
             isActive(item.path) && "bg-primary/10 text-primary hover:bg-primary/20"
           )}
         >
-          <Link to={item.path} className="flex items-center">
-            {item.icon}
-            <span>{item.label}</span>
+          <Link to={item.path}>
+            <span className="flex items-center">
+              {item.icon}
+              <span>{item.label}</span>
+            </span>
           </Link>
         </Button>
       ))}

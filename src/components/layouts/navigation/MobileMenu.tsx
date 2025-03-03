@@ -43,9 +43,11 @@ const MobileMenu = ({
             )}
             onClick={closeMenu}
           >
-            <Link to={item.path} className="flex items-center">
-              {item.icon}
-              <span>{item.label}</span>
+            <Link to={item.path}>
+              <span className="flex items-center w-full">
+                {item.icon}
+                <span>{item.label}</span>
+              </span>
             </Link>
           </Button>
         ))}
@@ -83,9 +85,11 @@ const MobileMenu = ({
             className="w-full justify-start mt-4"
             onClick={closeMenu}
           >
-            <Link to="/auth" className="flex items-center">
-              <LogIn className="mr-2 h-4 w-4" />
-              <span>Login</span>
+            <Link to="/auth">
+              <span className="flex items-center w-full">
+                <LogIn className="mr-2 h-4 w-4" />
+                <span>Login</span>
+              </span>
             </Link>
           </Button>
         )}

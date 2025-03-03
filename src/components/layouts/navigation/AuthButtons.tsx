@@ -56,9 +56,11 @@ const AuthButtons = ({
 
   return (
     <Button asChild size="sm">
-      <Link to="/auth" className="flex items-center">
-        <LogIn className="mr-2 h-4 w-4" />
-        <span>Login</span>
+      <Link to="/auth">
+        <span className="flex items-center">
+          <LogIn className="mr-2 h-4 w-4" />
+          <span>Login</span>
+        </span>
       </Link>
     </Button>
   );
