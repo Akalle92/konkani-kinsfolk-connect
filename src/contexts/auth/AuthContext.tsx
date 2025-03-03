@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await signUpOperation(email, password, toast);
+      await signUpOperation(email, password, params => toast(params));
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await signInOperation(email, password, toast);
+      await signInOperation(email, password, params => toast(params));
     } finally {
       setLoading(false);
     }
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     try {
-      await signOutOperation(toast);
+      await signOutOperation(params => toast(params));
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     setLoading(true);
     try {
-      await resetPasswordOperation(email, toast);
+      await resetPasswordOperation(email, params => toast(params));
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updatePassword = async (newPassword: string) => {
     setLoading(true);
     try {
-      await updatePasswordOperation(newPassword, toast);
+      await updatePasswordOperation(newPassword, params => toast(params));
     } finally {
       setLoading(false);
     }

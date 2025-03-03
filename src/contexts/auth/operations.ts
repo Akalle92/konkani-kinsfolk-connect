@@ -1,14 +1,18 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast as sonnerToast } from "sonner";
+import { toast } from "sonner";
 
-// Define the ToastOptions type based on what the toast function accepts
-type ToastOptions = Parameters<typeof sonnerToast>[0];
+// Create a type that matches what the operations functions expect
+interface ToastParams {
+  title?: string;
+  description?: string;
+  variant?: "default" | "destructive";
+}
 
 export const signUpOperation = async (
   email: string, 
   password: string, 
-  toast: (props: ToastOptions) => void
+  toastFn: (params: ToastParams) => void
 ) => {
   try {
     console.log("Attempting signup for:", email);
@@ -23,7 +27,7 @@ export const signUpOperation = async (
     if (error) throw error;
     
     console.log("Signup successful:", data);
-    toast({
+    toastFn({
       title: "Account created!",
       description: "Please check your email for verification."
     });
@@ -31,7 +35,7 @@ export const signUpOperation = async (
     return { data };
   } catch (error: any) {
     console.error("Signup error:", error.message);
-    toast({
+    toastFn({
       title: "Signup Error",
       description: error.message,
       variant: "destructive"
@@ -43,7 +47,7 @@ export const signUpOperation = async (
 export const signInOperation = async (
   email: string, 
   password: string, 
-  toast: (props: ToastOptions) => void
+  toastFn: (params: ToastParams) => void
 ) => {
   try {
     console.log("Attempting signin for:", email);
@@ -58,7 +62,7 @@ export const signInOperation = async (
     return { data };
   } catch (error: any) {
     console.error("Signin error:", error.message);
-    toast({
+    toastFn({
       title: "Sign In Error",
       description: error.message,
       variant: "destructive"
@@ -67,7 +71,7 @@ export const signInOperation = async (
   }
 };
 
-export const signOutOperation = async (toast: (props: ToastOptions) => void) => {
+export const signOutOperation = async (toastFn: (params: ToastParams) => void) => {
   try {
     console.log("Attempting signout");
     const { error } = await supabase.auth.signOut();
@@ -77,7 +81,7 @@ export const signOutOperation = async (toast: (props: ToastOptions) => void) => 
     return { success: true };
   } catch (error: any) {
     console.error("Signout error:", error.message);
-    toast({
+    toastFn({
       title: "Sign Out Error",
       description: error.message,
       variant: "destructive"
@@ -88,7 +92,7 @@ export const signOutOperation = async (toast: (props: ToastOptions) => void) => 
 
 export const resetPasswordOperation = async (
   email: string, 
-  toast: (props: ToastOptions) => void
+  toastFn: (params: ToastParams) => void
 ) => {
   try {
     console.log("Attempting password reset for:", email);
@@ -99,14 +103,14 @@ export const resetPasswordOperation = async (
     if (error) throw error;
     
     console.log("Password reset email sent");
-    toast({
+    toastFn({
       title: "Password Reset Email Sent",
       description: "Please check your inbox for instructions."
     });
     return { success: true };
   } catch (error: any) {
     console.error("Password reset error:", error.message);
-    toast({
+    toastFn({
       title: "Password Reset Error",
       description: error.message,
       variant: "destructive"
@@ -117,7 +121,7 @@ export const resetPasswordOperation = async (
 
 export const updatePasswordOperation = async (
   newPassword: string, 
-  toast: (props: ToastOptions) => void
+  toastFn: (params: ToastParams) => void
 ) => {
   try {
     console.log("Attempting to update password");
@@ -128,14 +132,14 @@ export const updatePasswordOperation = async (
     if (error) throw error;
     
     console.log("Password updated successfully");
-    toast({
+    toastFn({
       title: "Password Updated",
       description: "Your password has been successfully updated."
     });
     return { success: true };
   } catch (error: any) {
     console.error("Update password error:", error.message);
-    toast({
+    toastFn({
       title: "Password Update Error",
       description: error.message,
       variant: "destructive"
