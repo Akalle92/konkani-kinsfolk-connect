@@ -1,9 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
 
-// Define the ToastOptions type based on what the useToast hook accepts
-type ToastOptions = Parameters<typeof toast>[0];
+// Define the ToastOptions type based on what the toast function accepts
+type ToastOptions = Parameters<typeof sonnerToast>[0];
 
 export const signUpOperation = async (
   email: string, 
