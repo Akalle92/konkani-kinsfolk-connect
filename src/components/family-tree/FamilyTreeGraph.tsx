@@ -5,8 +5,18 @@ import { GraphContainer } from "./components/GraphContainer";
 import { FamilyTreeGraphProps } from "./types/graph-types";
 
 export function FamilyTreeGraph({ members, relationships, currentUserId, className = "" }: FamilyTreeGraphProps) {
+  // Ensure we have valid arrays before processing
+  const validMembers = Array.isArray(members) ? members : [];
+  const validRelationships = Array.isArray(relationships) ? relationships : [];
+  
+  console.log("FamilyTreeGraph rendering with:", {
+    memberCount: validMembers.length,
+    relationshipCount: validRelationships.length,
+    currentUserId
+  });
+  
   // Use custom hooks to manage graph state and controls
-  const { graphData, isInitialRender, setIsInitialRender } = useGraphData(members, relationships, currentUserId);
+  const { graphData, isInitialRender, setIsInitialRender } = useGraphData(validMembers, validRelationships, currentUserId);
   const { graphRef, handleZoomIn, handleZoomOut, handleCenter, handleFocusOnUser } = useGraphControls(currentUserId);
 
   return (
@@ -20,7 +30,7 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
       handleZoomOut={handleZoomOut}
       handleCenter={handleCenter}
       handleFocusOnUser={handleFocusOnUser}
-      members={members}
+      members={validMembers}
       className={className}
     />
   );

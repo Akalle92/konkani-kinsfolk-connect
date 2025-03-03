@@ -15,8 +15,16 @@ import Dashboard from "./pages/Dashboard";
 
 import "./App.css";
 
-// Create a client for React Query
-const queryClient = new QueryClient();
+// Create a client for React Query with better error handling
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
 function App() {
   return (

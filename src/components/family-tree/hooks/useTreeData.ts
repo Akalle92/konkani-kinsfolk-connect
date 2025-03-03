@@ -37,7 +37,8 @@ export function useTreeData(treeId: string | undefined) {
       }
     },
     enabled: Boolean(treeId),
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Fetch family members
@@ -65,7 +66,8 @@ export function useTreeData(treeId: string | undefined) {
       }
     },
     enabled: Boolean(treeId) && !treeError,
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Fetch relationships
@@ -93,7 +95,8 @@ export function useTreeData(treeId: string | undefined) {
       }
     },
     enabled: Boolean(treeId) && !treeError,
-    retry: 1
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   const isLoading = isTreeLoading || isMembersLoading || isRelationshipsLoading;
@@ -104,7 +107,7 @@ export function useTreeData(treeId: string | undefined) {
     members: members ? `${members.length} members` : 'no members',
     relationships: relationships ? `${relationships.length} relationships` : 'no relationships',
     isLoading,
-    error: error ? 'error present' : 'no error',
+    error: error ? String(error) : 'no error',
   });
 
   return {

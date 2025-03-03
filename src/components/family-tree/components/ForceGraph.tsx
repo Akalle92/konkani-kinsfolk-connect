@@ -81,6 +81,11 @@ export function ForceGraph({
     }
   }, [graphData, currentUserId, isInitialRender, setIsInitialRender, graphRef]);
 
+  console.log("ForceGraph rendering with data:", {
+    nodeCount: graphData.nodes.length,
+    linkCount: graphData.links.length
+  });
+
   // Ensure we have valid data before rendering
   const safeGraphData = {
     nodes: Array.isArray(graphData.nodes) ? graphData.nodes : [],
@@ -92,8 +97,31 @@ export function ForceGraph({
       ref={graphRef}
       graphData={safeGraphData}
       nodeRelSize={6}
-      nodeCanvasObject={nodeCanvasObject}
-      linkCanvasObject={linkCanvasObject}
+      nodeCanvasObject={(node, ctx, globalScale) => {
+        try {
+          return nodeCanvasObject(node, ctx, globalScale);
+        } catch (error) {
+          console.error("Error in nodeCanvasObject:", error);
+          // Fallback rendering
+          ctx.beginPath();
+          ctx.arc(node.x || 0, node.y || 0, 5, 0, 2 * Math.PI);
+          ctx.fillStyle = "#ccc";
+          ctx.fill();
+        }
+      }}
+      linkCanvasObject={(link, ctx, globalScale) => {
+        try {
+          return linkCanvasObject(link, ctx, globalScale);
+        } catch (error) {
+          console.error("Error in linkCanvasObject:", error);
+          // Fallback rendering
+          ctx.beginPath();
+          ctx.moveTo(link.source.x || 0, link.source.y || 0);
+          ctx.lineTo(link.target.x || 0, link.target.y || 0);
+          ctx.strokeStyle = "#ccc";
+          ctx.stroke();
+        }
+      }}
       linkDirectionalParticles={2}
       linkDirectionalParticleWidth={2}
       linkDirectionalParticleSpeed={0.005}

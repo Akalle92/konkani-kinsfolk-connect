@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { FamilyTreeGraph } from "@/components/family-tree/FamilyTreeGraph";
 import { MembersList } from "@/components/family-tree/MembersList";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TreeViewTabsProps {
   members: any[];
@@ -21,10 +21,23 @@ export function TreeViewTabs({
   isAddingRelationship
 }: TreeViewTabsProps) {
   const [activeTab, setActiveTab] = useState("tree");
+  const [error, setError] = useState<string | null>(null);
   
   // Ensure we have valid arrays
   const validMembers = Array.isArray(members) ? members : [];
   const validRelationships = Array.isArray(relationships) ? relationships : [];
+  
+  console.log("TreeViewTabs rendering with:", {
+    memberCount: validMembers.length,
+    relationshipCount: validRelationships.length,
+    currentUserMemberId,
+    activeTab
+  });
+
+  // Reset error state when data changes
+  useEffect(() => {
+    setError(null);
+  }, [members, relationships]);
   
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -49,12 +62,20 @@ export function TreeViewTabs({
             </div>
           )}
           
-          <FamilyTreeGraph 
-            members={validMembers} 
-            relationships={validRelationships} 
-            currentUserId={currentUserMemberId}
-            className="animate-fade-in"
-          />
+          {error ? (
+            <div className="bg-destructive/10 text-destructive p-4 rounded-md">
+              <p>Error loading tree visualization: {error}</p>
+            </div>
+          ) : (
+            <div className="relative w-full min-h-[600px]">
+              <FamilyTreeGraph 
+                members={validMembers} 
+                relationships={validRelationships} 
+                currentUserId={currentUserMemberId}
+                className="animate-fade-in"
+              />
+            </div>
+          )}
         </div>
       </TabsContent>
       
