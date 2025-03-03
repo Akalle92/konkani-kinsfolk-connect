@@ -51,8 +51,8 @@ const MainNavigation = () => {
 
   const navItems: NavItem[] = [
     { path: "/", label: "Home", icon: <Home className="mr-2 h-4 w-4" /> },
-    { path: "/dashboard", label: "Dashboard", icon: <User className="mr-2 h-4 w-4" /> },
-    { path: "/trees", label: "Family Trees", icon: <TreePine className="mr-2 h-4 w-4" /> },
+    { path: "/dashboard", label: "Dashboard", icon: <User className="mr-2 h-4 w-4" />, requiresAuth: true },
+    { path: "/trees", label: "Family Trees", icon: <TreePine className="mr-2 h-4 w-4" />, requiresAuth: true },
   ];
 
   const isActive = (path: string) => {

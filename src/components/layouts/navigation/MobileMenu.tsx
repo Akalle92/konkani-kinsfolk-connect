@@ -66,15 +66,15 @@ const MobileMenu = ({
             disabled={isSigningOut}
           >
             {isSigningOut ? (
-              <>
+              <span className="flex items-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 <span>Signing out...</span>
-              </>
+              </span>
             ) : (
-              <>
+              <span className="flex items-center">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Logout</span>
-              </>
+              </span>
             )}
           </Button>
         ) : (
