@@ -1,4 +1,7 @@
 
-export { AuthContext, AuthProvider } from './auth/AuthContext';
-export { useAuth } from './auth/hooks';
-export type { AuthContextType, UserRole } from './auth/types';
+import { AuthContext, AuthProvider } from './auth/AuthContext';
+import { useAuth } from './auth/hooks';
+import type { AuthContextType, UserRole } from './auth/types';
+
+export { AuthContext, AuthProvider, useAuth };
+export type { AuthContextType, UserRole };
