@@ -26,7 +26,13 @@ export function ForceGraph({
   
   // Focus on current user node when graph data changes or component mounts
   useEffect(() => {
-    if (isInitialRender && graphRef.current && graphData.nodes.length > 0 && currentUserId) {
+    if (
+      isInitialRender && 
+      graphRef.current && 
+      graphData.nodes && 
+      graphData.nodes.length > 0 && 
+      currentUserId
+    ) {
       // Find the current user node
       const currentUserNode = graphData.nodes.find(node => node.id === currentUserId);
       
@@ -35,33 +41,39 @@ export function ForceGraph({
         
         // Wait for the graph to initialize properly
         setTimeout(() => {
-          // Center the graph on the current user's node
-          graphRef.current.centerAt(
-            currentUserNode.x || 0, 
-            currentUserNode.y || 0, 
-            1000
-          );
-          // Set zoom level to see immediate relationships
-          graphRef.current.zoom(1.5, 1000);
+          if (!graphRef.current) return;
           
-          // Pin the current user's node at the center
-          const graphNodes = graphRef.current.graphData().nodes;
-          const updatedNodes = graphNodes.map((node: any) => {
-            if (node.id === currentUserId) {
-              return {
-                ...node,
-                fx: 0,  // Pin X at center
-                fy: 0   // Pin Y at center
-              };
-            }
-            return node;
-          });
-          
-          // Update the graph with the modified nodes
-          graphRef.current.graphData({
-            nodes: updatedNodes,
-            links: graphRef.current.graphData().links
-          });
+          try {
+            // Center the graph on the current user's node
+            graphRef.current.centerAt(
+              currentUserNode.x || 0, 
+              currentUserNode.y || 0, 
+              1000
+            );
+            // Set zoom level to see immediate relationships
+            graphRef.current.zoom(1.5, 1000);
+            
+            // Pin the current user's node at the center
+            const graphNodes = graphRef.current.graphData().nodes;
+            const updatedNodes = graphNodes.map((node: any) => {
+              if (node.id === currentUserId) {
+                return {
+                  ...node,
+                  fx: 0,  // Pin X at center
+                  fy: 0   // Pin Y at center
+                };
+              }
+              return node;
+            });
+            
+            // Update the graph with the modified nodes
+            graphRef.current.graphData({
+              nodes: updatedNodes,
+              links: graphRef.current.graphData().links
+            });
+          } catch (error) {
+            console.error("Error focusing on user node:", error);
+          }
         }, 500);
         
         setIsInitialRender(false);
@@ -69,10 +81,16 @@ export function ForceGraph({
     }
   }, [graphData, currentUserId, isInitialRender, setIsInitialRender, graphRef]);
 
+  // Ensure we have valid data before rendering
+  const safeGraphData = {
+    nodes: Array.isArray(graphData.nodes) ? graphData.nodes : [],
+    links: Array.isArray(graphData.links) ? graphData.links : []
+  };
+
   return (
     <ForceGraph2D
       ref={graphRef}
-      graphData={graphData}
+      graphData={safeGraphData}
       nodeRelSize={6}
       nodeCanvasObject={nodeCanvasObject}
       linkCanvasObject={linkCanvasObject}
@@ -97,8 +115,13 @@ export function ForceGraph({
         // After initial rendering stabilizes, if this is the first render
         // and we have a current user, center on them
         if (isInitialRender && currentUserId && graphRef.current) {
-          handleFocusOnUser();
-          setIsInitialRender(false);
+          try {
+            handleFocusOnUser();
+          } catch (error) {
+            console.error("Error in onEngineStop:", error);
+          } finally {
+            setIsInitialRender(false);
+          }
         }
       }}
     />

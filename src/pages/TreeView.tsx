@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth/hooks";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TreeViewHeader } from "@/components/family-tree/components/TreeViewHeader";
@@ -40,7 +40,13 @@ const TreeView = () => {
   const { addMemberMutation } = useMemberMutations(id);
   const { addRelationshipMutation } = useRelationshipMutations(id);
 
-  console.log("TreeView data:", { tree, members, relationships, isLoading, error });
+  console.log("TreeView data:", { 
+    tree, 
+    members: members && members.length, 
+    relationships: relationships && relationships.length, 
+    isLoading, 
+    error: error ? 'Error fetching data' : null 
+  });
 
   useEffect(() => {
     if (user && members && members.length > 0) {
@@ -89,7 +95,14 @@ const TreeView = () => {
   };
 
   if (!user) {
-    return null;
+    return (
+      <div className="container mx-auto p-6">
+        <div className="border rounded-lg p-6 text-center">
+          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
+          <p className="text-muted-foreground mb-4">Please sign in to view this family tree.</p>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -104,7 +117,14 @@ const TreeView = () => {
 
   if (!tree) {
     console.log("Tree data missing");
-    return <TreeViewError />;
+    return (
+      <div className="container mx-auto p-6">
+        <div className="border rounded-lg p-6 text-center">
+          <h2 className="text-xl font-semibold mb-2">Tree Not Found</h2>
+          <p className="text-muted-foreground mb-4">The requested family tree could not be found.</p>
+        </div>
+      </div>
+    );
   }
 
   console.log("Rendering TreeView with data:", {

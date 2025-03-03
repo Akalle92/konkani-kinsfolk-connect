@@ -32,6 +32,9 @@ export function GraphContainer({
   members,
   className = ""
 }: GraphContainerProps) {
+  // Check if members array is defined before rendering
+  const hasMembers = Array.isArray(members) && members.length > 0;
+  
   return (
     <div className={`relative w-full h-[600px] border rounded-lg overflow-hidden bg-white ${className}`}>
       <GraphControls
@@ -42,7 +45,7 @@ export function GraphContainer({
         hasCurrentUser={Boolean(currentUserId)}
       />
       
-      {(!members || members.length === 0) ? (
+      {!hasMembers ? (
         <EmptyGraphMessage />
       ) : (
         <ForceGraph

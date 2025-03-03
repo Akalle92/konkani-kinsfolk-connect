@@ -14,13 +14,17 @@ interface TreeViewTabsProps {
 }
 
 export function TreeViewTabs({
-  members,
-  relationships,
+  members = [],
+  relationships = [],
   currentUserMemberId,
   isAddingMember,
   isAddingRelationship
 }: TreeViewTabsProps) {
   const [activeTab, setActiveTab] = useState("tree");
+  
+  // Ensure we have valid arrays
+  const validMembers = Array.isArray(members) ? members : [];
+  const validRelationships = Array.isArray(relationships) ? relationships : [];
   
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -46,8 +50,8 @@ export function TreeViewTabs({
           )}
           
           <FamilyTreeGraph 
-            members={members} 
-            relationships={relationships} 
+            members={validMembers} 
+            relationships={validRelationships} 
             currentUserId={currentUserMemberId}
             className="animate-fade-in"
           />
@@ -56,7 +60,7 @@ export function TreeViewTabs({
       
       <TabsContent value="list" className="mt-4 animate-fade-in">
         <h2 className="text-2xl font-semibold mb-4">Family Members</h2>
-        <MembersList members={members} />
+        <MembersList members={validMembers} />
       </TabsContent>
     </Tabs>
   );
