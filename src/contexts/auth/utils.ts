@@ -1,24 +1,25 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { UserRole } from "./types";
 
-export const fetchUserRole = async (userId: string) => {
+export async function fetchUserRole(userId: string): Promise<UserRole | null> {
   try {
     console.log("Fetching user role for:", userId);
     const { data, error } = await supabase
       .from("user_roles")
       .select("*")
       .eq("user_id", userId)
-      .maybeSingle();  // Changed from .single() to .maybeSingle() to handle no results
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching user role:", error.message);
       return null;
     }
 
-    console.log("User role fetched:", data);
+    console.log("User role data:", data);
     return data;
-  } catch (error) {
-    console.error("Exception in fetchUserRole:", error);
+  } catch (err) {
+    console.error("Exception fetching user role:", err);
     return null;
   }
-};
+}
