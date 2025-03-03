@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { nodeCanvasObject, linkCanvasObject } from "../renderers/GraphRenderers";
-import { GraphData } from "../types/graph-types";
+import { GraphData, GraphNode } from "../types/graph-types";
 
 interface ForceGraphProps {
   graphRef: React.RefObject<any>;
@@ -12,6 +12,13 @@ interface ForceGraphProps {
   isInitialRender: boolean;
   setIsInitialRender: (value: boolean) => void;
   handleFocusOnUser: () => void;
+}
+
+// Add interface for link objects with proper typing
+interface NodeObject {
+  x?: number;
+  y?: number;
+  [key: string]: any;
 }
 
 export function ForceGraph({
@@ -111,13 +118,30 @@ export function ForceGraph({
       }}
       linkCanvasObject={(link, ctx, globalScale) => {
         try {
+          // Safely access source and target properties with type checking
+          const source = typeof link.source === 'object' ? link.source : { x: 0, y: 0 };
+          const target = typeof link.target === 'object' ? link.target : { x: 0, y: 0 };
+          
+          // Use typecasting to inform TypeScript these are objects with x and y properties
+          const sourcePos = source as NodeObject;
+          const targetPos = target as NodeObject;
+          
+          ctx.beginPath();
+          ctx.moveTo(sourcePos.x || 0, sourcePos.y || 0);
+          ctx.lineTo(targetPos.x || 0, targetPos.y || 0);
+          ctx.strokeStyle = "#ccc";
+          ctx.stroke();
+          
           return linkCanvasObject(link, ctx, globalScale);
         } catch (error) {
           console.error("Error in linkCanvasObject:", error);
-          // Fallback rendering
+          // Fallback rendering with null checks
+          const source = typeof link.source === 'object' ? link.source : { x: 0, y: 0 };
+          const target = typeof link.target === 'object' ? link.target : { x: 0, y: 0 };
+          
           ctx.beginPath();
-          ctx.moveTo(link.source.x || 0, link.source.y || 0);
-          ctx.lineTo(link.target.x || 0, link.target.y || 0);
+          ctx.moveTo(source.x || 0, source.y || 0);
+          ctx.lineTo(target.x || 0, target.y || 0);
           ctx.strokeStyle = "#ccc";
           ctx.stroke();
         }
