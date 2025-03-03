@@ -1,9 +1,9 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { TreesHeader } from '@/components/trees/TreesHeader';
 import { TreesLoading } from '@/components/trees/TreesLoading';
@@ -43,27 +43,28 @@ const EmptyTreesState = () => (
 );
 
 const Trees = () => {
-  const { user, userRole } = useAuth();
+  const { user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [localLoading, setLocalLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/auth');
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to view your family trees.",
-          variant: "destructive"
-        });
-      }
-    };
-    
-    checkAuth();
-  }, [navigate, toast]);
+    // Only navigate away if auth check is complete and user is not logged in
+    if (!authLoading && !user) {
+      console.log('No authenticated user found, redirecting to auth page');
+      navigate('/auth');
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to view your family trees.",
+        variant: "destructive"
+      });
+    } else if (!authLoading) {
+      // Auth check is complete and user is logged in
+      setLocalLoading(false);
+    }
+  }, [authLoading, user, navigate, toast]);
 
-  const { data: trees, isLoading, error, isFetching } = useQuery({
+  const { data: trees, isLoading: treesLoading, error, isFetching } = useQuery({
     queryKey: ['trees'],
     queryFn: async () => {
       if (!user?.id) {
@@ -87,30 +88,35 @@ const Trees = () => {
       console.log('Fetched trees:', data);
       return data || [];
     },
-    enabled: Boolean(user?.id),
+    enabled: !!user?.id, // Only run the query when user is available
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
   });
 
-  if (!user) {
-    console.log('No user in component render');
+  // Show loading state during initial auth check or while fetching trees
+  if (authLoading || localLoading) {
+    console.log('Showing loading state because auth is loading or local loading is true');
+    return <TreesLoading />;
+  }
+
+  // Show error if query failed
+  if (error) {
+    console.error('Error loading trees:', error);
     return <TreesError />;
   }
 
   return (
     <div className="container mx-auto p-6 animate-page-enter">
       <TreesHeader 
-        userId={user.id} 
+        userId={user?.id} 
         isAdmin={userRole?.role === 'admin'} 
       />
       
-      {isLoading ? (
+      {treesLoading ? (
         <TreesLoading />
-      ) : error ? (
-        <TreesError />
       ) : (
         <div className="relative">
-          {isFetching && !isLoading && (
+          {isFetching && !treesLoading && (
             <div className="absolute top-0 right-0 flex items-center gap-2 text-sm text-muted-foreground bg-background/80 backdrop-blur-sm p-2 rounded-md">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span>Refreshing</span>
