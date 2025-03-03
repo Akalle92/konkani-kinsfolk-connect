@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
 import { StickyHeader } from "@/components/homepage/StickyHeader";
 import { AnimatedHero } from "@/components/homepage/AnimatedHero";
@@ -24,10 +23,6 @@ const Index = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast({
-        title: "Signed out successfully",
-        description: "You have been logged out of your account.",
-      });
       navigate("/auth");
     } catch (error) {
       console.error("Sign out error:", error);

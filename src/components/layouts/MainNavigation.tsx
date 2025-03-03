@@ -1,7 +1,6 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { 
   Home,
   User,
@@ -22,8 +21,8 @@ const MainNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [isSigningOut, setIsSigningOut] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -38,16 +37,12 @@ const MainNavigation = () => {
       setIsSigningOut(true);
       await signOut();
       navigate('/auth');
-      toast({
-        title: "Signed out successfully",
-        description: "You have been logged out"
-      });
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
         title: "Error signing out",
         description: "There was a problem signing out. Please try again.",
-        style: { backgroundColor: 'red', color: 'white' }
+        variant: "destructive"
       });
     } finally {
       setIsSigningOut(false);
@@ -77,7 +72,6 @@ const MainNavigation = () => {
             </Link>
           </div>
 
-          {/* Desktop navigation */}
           <DesktopNavigation navItems={navItems} isActive={isActive} />
 
           <div className="hidden md:flex md:items-center md:space-x-2">
@@ -89,7 +83,6 @@ const MainNavigation = () => {
             />
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex md:hidden">
             <Button variant="ghost" size="sm" onClick={toggleMenu}>
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -98,7 +91,6 @@ const MainNavigation = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <MobileMenu 
         isMenuOpen={isMenuOpen}
         navItems={navItems}

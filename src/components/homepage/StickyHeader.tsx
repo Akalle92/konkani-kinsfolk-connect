@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TreePine, LogOut } from "lucide-react";
@@ -20,8 +19,6 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
     try {
       setIsSigningOut(true);
       await onSignOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
     } finally {
       setIsSigningOut(false);
     }
@@ -53,7 +50,6 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
             </h1>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
@@ -98,7 +94,6 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <Button
               variant="ghost"
@@ -133,7 +128,6 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 bg-white rounded-lg shadow-lg animate-fade-in">
             <div className="flex flex-col space-y-2 p-4">
