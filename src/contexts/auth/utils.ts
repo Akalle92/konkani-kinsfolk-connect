@@ -8,7 +8,7 @@ export const fetchUserRole = async (userId: string) => {
       .from("user_roles")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();  // Changed from .single() to .maybeSingle() to handle no results
 
     if (error) {
       console.error("Error fetching user role:", error.message);

@@ -37,11 +37,18 @@ const AuthButtons = ({
           size="sm" 
           onClick={handleSignOut}
           disabled={isSigningOut}
-          isLoading={isSigningOut}
-          loadingText="Signing out..."
         >
-          {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
-          {isSigningOut ? "Signing out..." : "Logout"}
+          {isSigningOut ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <span>Signing out...</span>
+            </>
+          ) : (
+            <>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Logout</span>
+            </>
+          )}
         </Button>
       </>
     );
@@ -51,7 +58,7 @@ const AuthButtons = ({
     <Button asChild size="sm">
       <Link to="/auth">
         <LogIn className="mr-2 h-4 w-4" />
-        Login
+        <span>Login</span>
       </Link>
     </Button>
   );
