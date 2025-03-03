@@ -1,3 +1,9 @@
+
+/* All styles have been moved to the src/styles directory.
+ * This file is kept for legacy purposes and contains only
+ * application-specific styles that aren't tied to Tailwind.
+ */
+
 #root {
   max-width: 1280px;
   margin: 0 auto;

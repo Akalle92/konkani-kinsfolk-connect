@@ -1,0 +1,68 @@
+
+@tailwind base;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 20% 12%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 20 20% 12%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 20% 12%;
+    
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 43 74% 49%;
+    --secondary-foreground: 0 0% 0%;
+    
+    --muted: 60 33% 96%;
+    --muted-foreground: 20 20% 40%;
+    
+    --accent: 48 100% 93%;
+    --accent-foreground: 20 20% 12%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 20% 88%;
+    --input: 20 20% 88%;
+    --ring: 20 20% 88%;
+
+    --radius: 0.5rem;
+    
+    /* New focus ring for better accessibility */
+    --focus-ring: 0 1px 0 0 hsl(var(--ring)), 0 0 0 3px hsla(var(--primary), 0.35);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-inter antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair tracking-tight;
+  }
+  
+  /* Improved focus styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background transition-shadow;
+  }
+  
+  /* Better button styles */
+  button, [role="button"] {
+    @apply select-none;
+  }
+}

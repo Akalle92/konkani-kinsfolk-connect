@@ -1,0 +1,68 @@
+
+@tailwind components;
+
+@layer components {
+  .story-link {
+    @apply relative inline-block;
+  }
+  
+  .story-link::after {
+    content: '';
+    @apply absolute w-full scale-x-0 h-0.5 bottom-0 left-0 bg-secondary origin-bottom-right transition-transform duration-300;
+  }
+  
+  .story-link:hover::after {
+    @apply scale-x-100 origin-bottom-left;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  .pulse {
+    @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
+  }
+  
+  /* Skeleton loaders - for better perceived performance */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+  
+  /* Toast notification styles */
+  .toast {
+    @apply rounded-lg shadow-lg p-4 mb-4 pointer-events-auto;
+  }
+  
+  .toast-success {
+    @apply bg-green-500 text-white;
+  }
+  
+  .toast-error {
+    @apply bg-destructive text-destructive-foreground;
+  }
+  
+  /* Card styles with hover effect */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+  }
+  
+  /* Empty state container */
+  .empty-state {
+    @apply flex flex-col items-center justify-center p-8 text-center rounded-lg border border-dashed border-muted-foreground/30;
+  }
+  
+  /* Touch-friendly button size for mobile */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Form field wrapper with consistent spacing */
+  .form-field {
+    @apply mb-4;
+  }
+  
+  /* Consistent section spacing */
+  .section-spacing {
+    @apply py-12 md:py-16;
+  }
+}
