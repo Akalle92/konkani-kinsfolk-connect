@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LogIn, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,9 +43,9 @@ const MobileMenu = ({
             )}
             onClick={closeMenu}
           >
-            <Link to={item.path}>
+            <Link to={item.path} className="flex items-center">
               {item.icon}
-              {item.label}
+              <span>{item.label}</span>
             </Link>
           </Button>
         ))}
@@ -66,11 +66,16 @@ const MobileMenu = ({
             disabled={isSigningOut}
           >
             {isSigningOut ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <span>Signing out...</span>
+              </>
             ) : (
-              <LogOut className="mr-2 h-4 w-4" />
+              <>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
+              </>
             )}
-            {isSigningOut ? "Signing out..." : "Logout"}
           </Button>
         ) : (
           <Button 
@@ -78,9 +83,9 @@ const MobileMenu = ({
             className="w-full justify-start mt-4"
             onClick={closeMenu}
           >
-            <Link to="/auth">
+            <Link to="/auth" className="flex items-center">
               <LogIn className="mr-2 h-4 w-4" />
-              Login
+              <span>Login</span>
             </Link>
           </Button>
         )}
