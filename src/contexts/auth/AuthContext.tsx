@@ -10,7 +10,8 @@ import {
   signInOperation,
   signOutOperation,
   resetPasswordOperation,
-  updatePasswordOperation
+  updatePasswordOperation,
+  ToastParams
 } from "./operations";
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await signUpOperation(email, password, params => toast(params));
+      await signUpOperation(email, password, (params: ToastParams) => toast(params));
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      await signInOperation(email, password, params => toast(params));
+      await signInOperation(email, password, (params: ToastParams) => toast(params));
     } finally {
       setLoading(false);
     }
@@ -123,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     try {
-      await signOutOperation(params => toast(params));
+      await signOutOperation((params: ToastParams) => toast(params));
       resetUserState(); // Explicitly reset state after sign out
     } finally {
       setLoading(false);
@@ -133,7 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     setLoading(true);
     try {
-      await resetPasswordOperation(email, params => toast(params));
+      await resetPasswordOperation(email, (params: ToastParams) => toast(params));
     } finally {
       setLoading(false);
     }
@@ -142,7 +143,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updatePassword = async (newPassword: string) => {
     setLoading(true);
     try {
-      await updatePasswordOperation(newPassword, params => toast(params));
+      await updatePasswordOperation(newPassword, (params: ToastParams) => toast(params));
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 // Create a type that matches what the operations functions expect
-interface ToastParams {
+export interface ToastParams {
   title?: string;
   description?: string;
   variant?: "default" | "destructive";
