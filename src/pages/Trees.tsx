@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth/hooks';
+import { useAuth } from "@/contexts/auth/hooks";
 import { useToast } from '@/hooks/use-toast';
 import { TreesHeader } from '@/components/trees/TreesHeader';
 import { TreesLoading } from '@/components/trees/TreesLoading';
