@@ -17,6 +17,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useEffect(() => {
     // Only redirect after auth state is confirmed (not during loading)
     if (!loading) {
+      setAuthChecked(true);
       if (!user) {
         console.log("MainLayout: No user found, redirecting to auth");
         navigate('/auth');
@@ -24,12 +25,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           description: "Please sign in to access this page",
         });
       }
-      setAuthChecked(true);
     }
   }, [user, navigate, loading]);
 
   // Don't render anything while checking auth status
-  if (!authChecked && loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -37,12 +37,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     );
   }
 
-  // Only render the content after auth check, and only if user is authenticated
+  // Show main layout when authentication check is done and we have a user
+  // or when we're not requiring authentication for this page
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />
       <main className="flex-1">
-        {user && children}
+        {authChecked && (user || !authChecked) ? children : null}
       </main>
     </div>
   );
