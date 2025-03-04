@@ -1,10 +1,9 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NavItem } from "./types";
-import { useAuth } from "@/contexts/auth";
+import { useAuth } from "@/contexts/auth/hooks";
 
 interface DesktopNavigationProps {
   navItems: NavItem[];

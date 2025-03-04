@@ -38,12 +38,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }
 
   // Show main layout when authentication check is done and we have a user
-  // or when we're not requiring authentication for this page
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />
       <main className="flex-1">
-        {authChecked && (user || !authChecked) ? children : null}
+        {authChecked && user ? children : null}
       </main>
     </div>
   );

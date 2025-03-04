@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
-import { useAuth } from "@/contexts/auth";
+import { useAuth } from "@/contexts/auth/hooks";
 import { useToast } from "@/hooks/use-toast";
 import { StickyHeader } from "@/components/homepage/StickyHeader";
 import { AnimatedHero } from "@/components/homepage/AnimatedHero";
