@@ -37,10 +37,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const initializeAuth = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Error getting session:", error.message);
+          resetUserState();
           return;
         }
         
@@ -52,9 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserRole(role);
         } else {
           console.log("No initial session found");
+          resetUserState();
         }
       } catch (error) {
         console.error("Fatal error during auth initialization:", error);
+        resetUserState();
       } finally {
         setLoading(false);
       }
@@ -67,14 +71,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
         
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        
-        if (currentSession?.user) {
-          const role = await fetchUserRole(currentSession.user.id);
-          setUserRole(role);
+        if (currentSession) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+          
+          if (currentSession.user) {
+            const role = await fetchUserRole(currentSession.user.id);
+            setUserRole(role);
+          }
         } else {
-          setUserRole(null);
+          resetUserState();
         }
         
         // Show toast for certain auth events
@@ -94,6 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             description: "Please check your email"
           });
         }
+        
+        // Always set loading to false after auth state changes are processed
+        setLoading(false);
       }
     );
 
@@ -160,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signOut,
         resetPassword,
         updatePassword,
-        resetUserState, // Expose the reset function
+        resetUserState,
         loading,
       }}
     >

@@ -29,7 +29,7 @@ const Auth = () => {
       
       console.log("Auth: User is logged in, redirecting to", redirectPath);
       
-      // Small timeout to prevent immediate redirect which can cause issues
+      // Use a small timeout to ensure state updates have propagated
       setTimeout(() => {
         navigate(redirectPath);
       }, 100);

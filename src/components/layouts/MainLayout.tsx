@@ -16,6 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    // Only run the auth check when auth is not loading anymore
     if (!loading) {
       setAuthChecked(true);
       
@@ -27,6 +28,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           sessionStorage.setItem('redirectAfterLogin', location.pathname);
         }
         
+        // Use navigate instead of window.location for SPA routing
         navigate('/auth');
         toast("Authentication required", {
           description: "Please sign in to access this page",
@@ -38,7 +40,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, [user, navigate, loading, location.pathname]);
 
   // Show loading spinner while checking auth
-  if (loading) {
+  if (loading || (!user && authChecked)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -46,12 +48,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     );
   }
 
-  // Don't render children if not authenticated
-  if (!user) {
-    return null;
-  }
-
-  // Show main layout when authenticated
+  // Only render children when authenticated
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />

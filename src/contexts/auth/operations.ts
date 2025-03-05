@@ -73,7 +73,10 @@ export const signInOperation = async (
 export const signOutOperation = async (toastFn: (params: ToastParams) => void) => {
   try {
     console.log("Attempting signout");
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut({
+      scope: 'global'  // Sign out from all devices
+    });
+    
     if (error) throw error;
     
     console.log("Signout successful");

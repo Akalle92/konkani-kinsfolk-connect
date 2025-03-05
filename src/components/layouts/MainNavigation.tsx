@@ -36,7 +36,8 @@ const MainNavigation = () => {
     try {
       setIsSigningOut(true);
       await signOut();
-      navigate('/auth');
+      // After sign out, navigate to home page
+      navigate('/');
     } catch (error) {
       console.error("Sign out error:", error);
       toast({
