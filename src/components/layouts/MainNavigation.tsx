@@ -47,6 +47,7 @@ const MainNavigation = () => {
       });
     } finally {
       setIsSigningOut(false);
+      closeMenu(); // Close menu after sign out
     }
   };
 
@@ -73,7 +74,7 @@ const MainNavigation = () => {
             </Link>
           </div>
 
-          <DesktopNavigation navItems={navItems} isActive={isActive} />
+          <DesktopNavigation navItems={navItems.filter(item => !item.requiresAuth || user)} isActive={isActive} />
 
           <div className="hidden md:flex md:items-center md:space-x-2">
             <AuthButtons 
@@ -94,7 +95,7 @@ const MainNavigation = () => {
 
       <MobileMenu 
         isMenuOpen={isMenuOpen}
-        navItems={navItems}
+        navItems={navItems.filter(item => !item.requiresAuth || user)}
         isActive={isActive}
         closeMenu={closeMenu}
         user={user}

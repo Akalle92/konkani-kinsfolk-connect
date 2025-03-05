@@ -30,9 +30,11 @@ const Auth = () => {
       console.log("Auth: User is logged in, redirecting to", redirectPath);
       
       // Use a small timeout to ensure state updates have propagated
-      setTimeout(() => {
+      const redirectTimer = setTimeout(() => {
         navigate(redirectPath);
-      }, 100);
+      }, 300);
+      
+      return () => clearTimeout(redirectTimer);
     }
   }, [user, loading, navigate, redirecting]);
 
@@ -52,6 +54,8 @@ const Auth = () => {
         await signIn(email, password);
       } else {
         await signUp(email, password);
+        // After signup, automatically switch to login view
+        setIsLogin(true);
       }
     } catch (error) {
       console.error("Authentication error:", error);
@@ -92,7 +96,7 @@ const Auth = () => {
                   disabled={loading || redirecting}
                 />
               </div>
-              <Button disabled={loading || redirecting} type="submit">
+              <Button disabled={loading || redirecting} type="submit" className="mt-2">
                 {loading || redirecting ? (
                   <div className="flex items-center justify-center">
                     <svg

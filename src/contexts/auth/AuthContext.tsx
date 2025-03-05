@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     console.log("Auth Provider initializing...");
+    let mounted = true;
     
     // Get initial session
     const initializeAuth = async () => {
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
         
-        if (data?.session) {
+        if (data?.session && mounted) {
           console.log("Initial session found for user:", data.session.user.id);
           setSession(data.session);
           setUser(data.session.user);
@@ -60,7 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Fatal error during auth initialization:", error);
         resetUserState();
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -71,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, currentSession) => {
         console.log("Auth state changed:", event, currentSession?.user?.id);
         
-        if (currentSession) {
+        if (currentSession && mounted) {
           setSession(currentSession);
           setUser(currentSession.user);
           
@@ -102,11 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         // Always set loading to false after auth state changes are processed
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     return () => {
+      mounted = false;
       console.log("Unsubscribing from auth changes");
       subscription.unsubscribe();
     };
