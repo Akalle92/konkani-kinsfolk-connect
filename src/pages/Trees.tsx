@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -49,20 +48,10 @@ const Trees = () => {
   const [localLoading, setLocalLoading] = useState(true);
 
   useEffect(() => {
-    // Only navigate away if auth check is complete and user is not logged in
-    if (!authLoading && !user) {
-      console.log('No authenticated user found, redirecting to auth page');
-      navigate('/auth');
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to view your family trees.",
-        variant: "destructive"
-      });
-    } else if (!authLoading) {
-      // Auth check is complete and user is logged in
+    if (!authLoading) {
       setLocalLoading(false);
     }
-  }, [authLoading, user, navigate, toast]);
+  }, [authLoading]);
 
   const { data: trees, isLoading: treesLoading, error, isFetching } = useQuery({
     queryKey: ['trees'],
@@ -93,13 +82,11 @@ const Trees = () => {
     refetchOnWindowFocus: true,
   });
 
-  // Show loading state during initial auth check or while fetching trees
   if (authLoading || localLoading) {
     console.log('Showing loading state because auth is loading or local loading is true');
     return <TreesLoading />;
   }
 
-  // Show error if query failed
   if (error) {
     console.error('Error loading trees:', error);
     return <TreesError />;

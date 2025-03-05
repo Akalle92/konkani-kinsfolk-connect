@@ -21,19 +21,11 @@ type RelationshipData = {
 
 const TreeView = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [currentUserMemberId, setCurrentUserMemberId] = useState<string | null>(null);
   
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      toast("Authentication required", {
-        description: "Please sign in to view family trees",
-      });
-    }
-  }, [user, navigate]);
-
+  // Remove direct navigation, let MainLayout handle auth redirects
+  
   console.log("TreeView rendered with id:", id);
   
   const { tree, members, relationships, isLoading, error } = useTreeData(id);
@@ -93,17 +85,6 @@ const TreeView = () => {
       toast.error("Failed to add relationship");
     }
   };
-
-  if (!user) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="border rounded-lg p-6 text-center">
-          <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-          <p className="text-muted-foreground mb-4">Please sign in to view this family tree.</p>
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     console.log("TreeView is loading");

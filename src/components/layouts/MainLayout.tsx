@@ -16,7 +16,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    // Only redirect after auth state is confirmed (not during loading)
     if (!loading) {
       setAuthChecked(true);
       
@@ -24,7 +23,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         console.log("MainLayout: No user found, redirecting to auth", location.pathname);
         
         // Store the current path to redirect back after login
-        sessionStorage.setItem('redirectAfterLogin', location.pathname);
+        if (location.pathname !== '/auth') {
+          sessionStorage.setItem('redirectAfterLogin', location.pathname);
+        }
         
         navigate('/auth');
         toast("Authentication required", {
@@ -36,8 +37,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }
   }, [user, navigate, loading, location.pathname]);
 
-  // Don't render anything while checking auth status
-  if (loading || (!user && !authChecked)) {
+  // Show loading spinner while checking auth
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -45,12 +46,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     );
   }
 
-  // Show main layout when authentication check is done and we have a user
+  // Don't render children if not authenticated
+  if (!user) {
+    return null;
+  }
+
+  // Show main layout when authenticated
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />
       <main className="flex-1">
-        {user ? children : null}
+        {children}
       </main>
     </div>
   );

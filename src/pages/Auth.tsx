@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth/hooks";
@@ -14,9 +15,12 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !redirecting) {
+      setRedirecting(true);
+      
       // Get the stored redirect path or default to dashboard
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
       
@@ -24,9 +28,13 @@ const Auth = () => {
       sessionStorage.removeItem('redirectAfterLogin');
       
       console.log("Auth: User is logged in, redirecting to", redirectPath);
-      navigate(redirectPath);
+      
+      // Small timeout to prevent immediate redirect which can cause issues
+      setTimeout(() => {
+        navigate(redirectPath);
+      }, 100);
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, redirecting]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +47,14 @@ const Auth = () => {
       return;
     }
 
-    if (isLogin) {
-      signIn(email, password);
-    } else {
-      signUp(email, password);
+    try {
+      if (isLogin) {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password);
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
     }
   };
 
@@ -67,7 +79,7 @@ const Auth = () => {
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
-                  disabled={loading}
+                  disabled={loading || redirecting}
                 />
               </div>
               <div className="grid gap-1">
@@ -77,11 +89,11 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   type="password"
-                  disabled={loading}
+                  disabled={loading || redirecting}
                 />
               </div>
-              <Button disabled={loading} type="submit">
-                {loading ? (
+              <Button disabled={loading || redirecting} type="submit">
+                {loading || redirecting ? (
                   <div className="flex items-center justify-center">
                     <svg
                       className="animate-spin h-5 w-5 mr-2"
