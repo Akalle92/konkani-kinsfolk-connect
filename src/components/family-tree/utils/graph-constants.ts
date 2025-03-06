@@ -9,14 +9,14 @@ export const GENDER_COLORS = {
 
 // Map relationship types to colors and styles
 export const RELATIONSHIP_STYLES: Record<string, { color: string; dashed?: boolean; width: number }> = {
-  parent: { color: "#555", width: 1 },
-  child: { color: "#555", width: 1 },
-  spouse: { color: "#E11D48", width: 2 },
-  sibling: { color: "#3B82F6", width: 1 },
-  "step-parent": { color: "#555", dashed: true, width: 1 },
-  "step-child": { color: "#555", dashed: true, width: 1 },
-  "in-law": { color: "#9333EA", dashed: true, width: 1 },
-  default: { color: "#22C55E", dashed: true, width: 1.5 }
+  parent: { color: "#3498DB", width: 1.5 },
+  child: { color: "#3498DB", width: 1.5 },
+  spouse: { color: "#E74C3C", width: 2 },
+  sibling: { color: "#2ECC71", width: 1.5 },
+  "step-parent": { color: "#999", dashed: true, width: 1 },
+  "step-child": { color: "#999", dashed: true, width: 1 },
+  "in-law": { color: "#999", dashed: true, width: 1 },
+  default: { color: "#999", dashed: true, width: 1 }
 };
 
 // Helper to get relationship style
