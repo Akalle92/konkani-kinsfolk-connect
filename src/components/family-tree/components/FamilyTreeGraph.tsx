@@ -1,10 +1,11 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import { GraphData, GraphNode, FamilyTreeGraphProps } from "../types/graph-types";
+import { GraphData, GraphNode, GraphLink } from "../types/graph-types";
 import { useGraphControls } from "../hooks/useGraphControls";
 import { nodeCanvasObject } from "../renderers/GraphRenderers";
 
+// Define a local interface for props instead of importing and creating a conflict
 interface FamilyTreeGraphProps {
   members: GraphNode[];
   relationships: any[];
@@ -63,6 +64,7 @@ export function FamilyTreeGraph({
     const connectedLinks = new Set();
 
     graphLinks.forEach(link => {
+      // Handle possibly null values with type guards
       const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
       const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
 
@@ -121,7 +123,7 @@ export function FamilyTreeGraph({
         ref={graphRef}
         graphData={graphData}
         nodeCanvasObject={(node, ctx, globalScale) => 
-          nodeCanvasObject(node, ctx, globalScale, highlightNodes, showImages)
+          nodeCanvasObject(node, ctx, globalScale)
         }
         linkColor={(link) => highlightLinks.has(link) ? '#f97316' : '#999'}
         linkWidth={(link) => highlightLinks.has(link) ? 2 : 1}

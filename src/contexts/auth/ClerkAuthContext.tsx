@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,9 +92,7 @@ export function ClerkAuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await clerkSignOut();
-      toast({
-        title: "Signed out successfully",
-      });
+      toast("Signed out successfully");
       // Clear any local session state
       resetUserState();
     } finally {
