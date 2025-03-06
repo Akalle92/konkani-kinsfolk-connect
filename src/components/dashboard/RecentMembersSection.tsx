@@ -7,12 +7,18 @@ import { Link } from "react-router-dom";
 
 interface FamilyMember {
   id: string;
-  name: string;
+  name?: string;
+  first_name: string;
+  last_name: string;
   photoUrl?: string;
+  photo_url?: string | null;
+  birth_date?: string | null;
   birthDate?: string;
-  treeId: string;
-  treeName: string;
-  updatedAt: string;
+  treeId?: string;
+  tree_id?: string;
+  treeName?: string;
+  updatedAt?: string;
+  updated_at?: string | null;
 }
 
 interface RecentMembersSectionProps {
@@ -44,31 +50,33 @@ export function RecentMembersSection({ members }: RecentMembersSectionProps) {
           {members.map((member) => (
             <Card key={member.id} className="overflow-hidden">
               <div className="aspect-square relative bg-muted">
-                {member.photoUrl ? (
+                {(member.photoUrl || member.photo_url) ? (
                   <img 
-                    src={member.photoUrl} 
-                    alt={member.name} 
+                    src={member.photoUrl || member.photo_url || ''} 
+                    alt={member.name || `${member.first_name} ${member.last_name}`} 
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-muted-foreground">
-                    {member.name.charAt(0)}
+                    {(member.name || `${member.first_name}`).charAt(0)}
                   </div>
                 )}
               </div>
               <CardContent className="p-4">
                 <div className="flex flex-col space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{member.name}</h3>
+                    <h3 className="font-semibold">{member.name || `${member.first_name} ${member.last_name}`}</h3>
                     <Badge variant="outline" className="text-xs">
-                      {new Date(member.updatedAt).toLocaleDateString()}
+                      {new Date(member.updatedAt || member.updated_at || Date.now()).toLocaleDateString()}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {member.birthDate ? `Born: ${new Date(member.birthDate).toLocaleDateString()}` : 'No birth date'}
+                    {(member.birthDate || member.birth_date) ? 
+                      `Born: ${new Date(member.birthDate || member.birth_date || '').toLocaleDateString()}` : 
+                      'No birth date'}
                   </p>
-                  <Link to={`/trees/${member.treeId}`} className="text-xs text-primary hover:underline mt-2">
-                    {member.treeName}
+                  <Link to={`/trees/${member.treeId || member.tree_id}`} className="text-xs text-primary hover:underline mt-2">
+                    {member.treeName || 'View Tree'}
                   </Link>
                 </div>
               </CardContent>

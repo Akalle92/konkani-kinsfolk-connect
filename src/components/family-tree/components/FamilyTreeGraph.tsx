@@ -231,7 +231,7 @@ export function FamilyTreeGraph({
         warmupTicks={50}
         cooldownTicks={50}
         onNodeClick={handleNodeClick}
-        onNodeDblClick={handleNodeDoubleClick}
+        onNodeClick={handleNodeDoubleClick} // Changed from onNodeDblClick to onNodeClick (using the same event for both)
         enableNodeDrag={true}
         onNodeDragEnd={(node: any) => {
           node.fx = node.x;

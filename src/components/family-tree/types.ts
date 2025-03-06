@@ -7,6 +7,7 @@ export interface FamilyMember {
   middle_name?: string | null;
   birth_date?: string | null;
   birth_place?: string | null;
+  death_date?: string | null; // Add death_date property
   photo_url?: string | null;
   notes?: string | null;
 }

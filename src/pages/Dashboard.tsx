@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/auth/hooks";
@@ -75,7 +74,11 @@ const Dashboard = () => {
         return {
           ...member,
           treeName: tree?.name || 'Unknown Tree',
-          name: `${member.first_name} ${member.last_name}`
+          name: `${member.first_name} ${member.last_name}`,
+          treeId: member.tree_id,
+          updatedAt: member.updated_at,
+          photoUrl: member.photo_url,
+          birthDate: member.birth_date
         };
       });
     },
