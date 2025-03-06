@@ -16,6 +16,12 @@ interface FamilyTreeGraphProps {
   onAddRelative?: (memberId: string) => void;
 }
 
+// Define a helper type for Graph link source/target
+interface NodeObject {
+  id: string;
+  [key: string]: any;
+}
+
 export function FamilyTreeGraph({
   members,
   relationships,
@@ -72,13 +78,17 @@ export function FamilyTreeGraph({
       let targetId = '';
       
       if (typeof link.source === 'object' && link.source) {
-        sourceId = link.source.id || '';
+        // Cast to NodeObject to ensure TypeScript knows it has an id property
+        const sourceObj = link.source as NodeObject;
+        sourceId = sourceObj.id || '';
       } else if (typeof link.source === 'string') {
         sourceId = link.source;
       }
       
       if (typeof link.target === 'object' && link.target) {
-        targetId = link.target.id || '';
+        // Cast to NodeObject to ensure TypeScript knows it has an id property
+        const targetObj = link.target as NodeObject;
+        targetId = targetObj.id || '';
       } else if (typeof link.target === 'string') {
         targetId = link.target;
       }
