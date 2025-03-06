@@ -12,9 +12,15 @@ interface GraphNode extends FamilyMember {
 }
 
 // Interface for graph link with source/target
-interface GraphLink extends Omit<Relationship, 'from' | 'to'> {
+interface GraphLink {
+  id: string;
+  type: 'parent-child' | 'spouse' | 'sibling';
   source: string;
   target: string;
+  metadata?: Record<string, any>;
+  // Original properties for conversion
+  from?: string;
+  to?: string;
 }
 
 // Helper type for force graph node objects
@@ -43,7 +49,7 @@ export function FamilyTreeGraph({
   const graphRef = useRef<ForceGraphMethods>();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({ nodes: [], links: [] });
   const [highlightNodes, setHighlightNodes] = useState(new Set<string>());
-  const [highlightLinks, setHighlightLinks] = useState(new Set<Relationship>());
+  const [highlightLinks, setHighlightLinks] = useState(new Set<GraphLink>());
 
   // Convert the input data to graph format
   useEffect(() => {
@@ -59,9 +65,13 @@ export function FamilyTreeGraph({
 
     const links: GraphLink[] = Array.isArray(relationships) 
       ? relationships.map(rel => ({
-          ...rel,
+          id: rel.id,
+          type: rel.type,
           source: rel.from,
-          target: rel.to
+          target: rel.to,
+          metadata: rel.metadata,
+          from: rel.from,
+          to: rel.to
         }))
       : [];
 

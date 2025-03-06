@@ -1,15 +1,15 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "@clerk/clerk-react";
 import MainNavigation from "./MainNavigation";
 import { toast } from "sonner";
 
 interface MainLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = () => {
   const { userId, isLoaded } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,12 +57,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return null;
   }
 
-  // Render children whether authenticated or not - let child components handle their visibility
+  // Use Outlet from react-router-dom to render the nested routes
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />
       <main className="flex-1">
-        {children}
+        <Outlet />
       </main>
     </div>
   );

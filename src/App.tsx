@@ -9,7 +9,7 @@ import Auth from "@/pages/Auth";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import MainLayout from "@/components/layouts/MainLayout";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 

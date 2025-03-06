@@ -4,6 +4,7 @@ import { FamilyTreeGraph } from "@/components/family-tree/components/FamilyTreeG
 import { TreeSummaryCard } from "./TreeSummaryCard";
 import { TreeLegend } from "@/components/family-tree/components/TreeLegend";
 import { GraphData } from "../types/graph-types";
+import { FamilyMember, Relationship } from "@/types/family";
 
 interface TreeVisualTabProps {
   graphData: GraphData;
@@ -28,11 +29,31 @@ export function TreeVisualTab({
   onEditMember,
   onAddRelative
 }: TreeVisualTabProps) {
+  // Convert GraphNode[] to FamilyMember[] and GraphLink[] to Relationship[]
+  const members: FamilyMember[] = graphData.nodes.map(node => ({
+    id: node.id,
+    name: node.name,
+    gender: (node.gender || 'other') as 'male' | 'female' | 'other',
+    birthDate: node.birthDate,
+    deathDate: node.deathDate,
+    imageUrl: node.photoUrl,
+    isAlive: node.isDeceased === true ? false : true,
+    metadata: {}
+  }));
+  
+  const relationships: Relationship[] = graphData.links.map(link => ({
+    id: typeof link.source === 'object' && link.source ? link.source.id : (link.source as string),
+    type: (link.type || 'parent-child') as 'parent-child' | 'spouse' | 'sibling',
+    from: typeof link.source === 'object' && link.source ? link.source.id : (link.source as string),
+    to: typeof link.target === 'object' && link.target ? link.target.id : (link.target as string),
+    metadata: {}
+  }));
+
   return (
     <div className="space-y-6">
       <FamilyTreeGraph 
-        members={graphData.nodes} 
-        relationships={graphData.links}
+        members={members} 
+        relationships={relationships}
         currentUserId={currentUserId}
         onNodeClick={(node) => console.log("Node clicked:", node)}
         onEditMember={onEditMember}
