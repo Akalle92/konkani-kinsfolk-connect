@@ -64,7 +64,9 @@ export function FamilyTreeGraph({
     const connectedLinks = new Set();
 
     graphLinks.forEach(link => {
-      // Handle possibly null values with type guards
+      // Add null checks and type guards for link.source and link.target
+      if (!link.source || !link.target) return;
+      
       const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
       const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
 
