@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define our new AuthContext type with Clerk
 export interface ClerkAuthContextType {
@@ -20,10 +21,35 @@ export const ClerkAuthContext = createContext<ClerkAuthContextType | undefined>(
 
 // Auth provider component
 export function ClerkAuthProvider({ children }: { children: React.ReactNode }) {
-  const { isLoaded, signOut: clerkSignOut } = useClerkAuth();
+  const { isLoaded, userId, signOut: clerkSignOut } = useClerkAuth();
   const { user, isLoaded: isUserLoaded } = useUser();
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<any | null>(null);
+
+  // Check for user role once we have a user
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (userId) {
+        try {
+          const { data, error } = await supabase
+            .from('user_roles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+            
+          if (!error && data) {
+            setUserRole(data);
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
+      }
+    };
+
+    if (userId) {
+      fetchUserRole();
+    }
+  }, [userId]);
 
   // Handle initial loading
   useEffect(() => {
@@ -57,6 +83,8 @@ export function ClerkAuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await clerkSignOut();
+      // Clear any local session state
+      resetUserState();
     } finally {
       setLoading(false);
     }

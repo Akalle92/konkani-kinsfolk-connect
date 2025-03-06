@@ -33,7 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         
         // Only show toast if not on the auth page already
         if (location.pathname !== '/auth') {
-          toast("Authentication required", {
+          toast.error("Authentication required", {
             description: "Please sign in to access this page",
           });
         }

@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { ClerkAuthProvider } from "./contexts/auth/ClerkAuthContext";
@@ -39,6 +39,9 @@ function App() {
             <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="/trees" element={<MainLayout><Trees /></MainLayout>} />
             <Route path="/trees/:id" element={<MainLayout><TreeView /></MainLayout>} />
+            
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </ClerkAuthProvider>
       </QueryClientProvider>

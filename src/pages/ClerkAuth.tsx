@@ -1,38 +1,33 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SignIn, SignUp } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 const ClerkAuth = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { userId, isLoaded } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
-  const handleSignInComplete = () => {
-    toast({
-      title: "Signed in successfully",
-      description: "Welcome back!",
-    });
-    
-    // Get the stored redirect path or default to dashboard
-    const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
-    
-    // Clear the stored path
-    sessionStorage.removeItem('redirectAfterLogin');
-    
-    navigate(redirectPath);
-  };
-
-  const handleSignUpComplete = () => {
-    toast({
-      title: "Account created",
-      description: "Welcome to the app!",
-    });
-    navigate("/dashboard");
-  };
+  // Check if we should redirect to a stored path after login
+  useEffect(() => {
+    if (isLoaded && userId) {
+      // User is already signed in, redirect to stored path or dashboard
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+      
+      // Clear the stored path
+      sessionStorage.removeItem('redirectAfterLogin');
+      
+      toast.success("Signed in successfully", {
+        description: "Welcome back!",
+      });
+      
+      navigate(redirectPath);
+    }
+  }, [userId, isLoaded, navigate]);
 
   const toggleView = () => {
     setIsLogin(!isLogin);
