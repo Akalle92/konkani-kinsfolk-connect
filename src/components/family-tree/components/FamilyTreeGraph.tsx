@@ -1,4 +1,3 @@
-
 import { useRef, useState, useCallback } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -65,16 +64,17 @@ export function FamilyTreeGraph({
     setIsCompactView(!isCompactView);
   }, [isCompactView]);
   
-  // Handle node click for quick view
+  // Handle node interactions - combined the click and double click handlers
   const handleNodeClick = useCallback((node: any) => {
-    setSelectedNode(node);
-  }, []);
-  
-  // Handle node double click for detailed view
-  const handleNodeDoubleClick = useCallback((node: any) => {
-    setSelectedNode(null);
-    setDetailsNode(node);
-  }, []);
+    // If there's already a selected node and it's the same one, treat it as a double-click
+    if (selectedNode && selectedNode.id === node.id) {
+      setSelectedNode(null);
+      setDetailsNode(node);
+    } else {
+      // First click - show quick view
+      setSelectedNode(node);
+    }
+  }, [selectedNode]);
   
   // Close quick view
   const handleCloseQuickView = useCallback(() => {
@@ -231,7 +231,6 @@ export function FamilyTreeGraph({
         warmupTicks={50}
         cooldownTicks={50}
         onNodeClick={handleNodeClick}
-        onNodeClick={handleNodeDoubleClick} // Changed from onNodeDblClick to onNodeClick (using the same event for both)
         enableNodeDrag={true}
         onNodeDragEnd={(node: any) => {
           node.fx = node.x;
