@@ -1,4 +1,5 @@
 
+import { useRef } from "react";
 import { useGraphData } from "./hooks/useGraphData";
 import { useGraphControls } from "./hooks/useGraphControls";
 import { GraphContainer } from "./components/GraphContainer";
@@ -15,9 +16,12 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
     currentUserId
   });
   
+  // Create a ref for the graph
+  const graphRef = useRef<any>(null);
+  
   // Use custom hooks to manage graph state and controls
   const { graphData, isInitialRender, setIsInitialRender } = useGraphData(validMembers, validRelationships, currentUserId);
-  const { graphRef, handleZoomIn, handleZoomOut, handleCenter, handleFocusOnUser } = useGraphControls(currentUserId);
+  const { handleZoomIn, handleZoomOut, handleCenter, handleFocusOnUser } = useGraphControls(graphRef);
 
   return (
     <GraphContainer
@@ -29,7 +33,7 @@ export function FamilyTreeGraph({ members, relationships, currentUserId, classNa
       handleZoomIn={handleZoomIn}
       handleZoomOut={handleZoomOut}
       handleCenter={handleCenter}
-      handleFocusOnUser={handleFocusOnUser}
+      handleFocusOnUser={() => handleFocusOnUser(currentUserId)}
       members={validMembers}
       className={className}
     />

@@ -70,11 +70,12 @@ export function FamilyTreeGraph({
       const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
       const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
 
-      if (sourceId === node.id) {
-        connectedNodeIds.add(targetId as string);
+      // Add additional null checks for sourceId and targetId when comparing
+      if (sourceId && sourceId === node.id) {
+        if (targetId) connectedNodeIds.add(targetId as string);
         connectedLinks.add(link);
-      } else if (targetId === node.id) {
-        connectedNodeIds.add(sourceId as string);
+      } else if (targetId && targetId === node.id) {
+        if (sourceId) connectedNodeIds.add(sourceId as string);
         connectedLinks.add(link);
       }
     });
