@@ -67,21 +67,28 @@ export function FamilyTreeGraph({
       // Skip links with null source or target
       if (link.source === null || link.target === null) return;
       
-      // Safely extract IDs, ensuring we don't access properties of null/undefined
-      const sourceId = typeof link.source === 'object' && link.source ? 
-                      (link.source.id || '') : 
-                      (link.source || '');
-                      
-      const targetId = typeof link.target === 'object' && link.target ? 
-                      (link.target.id || '') : 
-                      (link.target || '');
+      // Safely extract IDs
+      let sourceId = '';
+      let targetId = '';
+      
+      if (typeof link.source === 'object' && link.source) {
+        sourceId = link.source.id || '';
+      } else if (typeof link.source === 'string') {
+        sourceId = link.source;
+      }
+      
+      if (typeof link.target === 'object' && link.target) {
+        targetId = link.target.id || '';
+      } else if (typeof link.target === 'string') {
+        targetId = link.target;
+      }
 
       // Only add valid node IDs to the connected set
       if (sourceId && sourceId === node.id) {
-        if (targetId) connectedNodeIds.add(targetId as string);
+        if (targetId) connectedNodeIds.add(targetId);
         connectedLinks.add(link);
       } else if (targetId && targetId === node.id) {
-        if (sourceId) connectedNodeIds.add(sourceId as string);
+        if (sourceId) connectedNodeIds.add(sourceId);
         connectedLinks.add(link);
       }
     });
