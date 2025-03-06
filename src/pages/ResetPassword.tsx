@@ -4,10 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth/hooks";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import PasswordForm from "@/components/auth/PasswordForm";
 import ResetPasswordError from "@/components/auth/ResetPasswordError";
 import ResetPasswordSuccess from "@/components/auth/ResetPasswordSuccess";
+import ResetPasswordLoading from "@/components/auth/ResetPasswordLoading";
 
 const ResetPassword = () => {
   const [error, setError] = useState("");
@@ -53,9 +53,8 @@ const ResetPassword = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-accent flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="mt-4 text-muted-foreground">Verifying your reset link...</p>
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+          <ResetPasswordLoading />
         </div>
       </div>
     );
