@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Define our new AuthContext type with Clerk
 export interface ClerkAuthContextType {
@@ -31,32 +32,41 @@ export function ClerkAuthProvider({ children }: { children: React.ReactNode }) {
     const fetchUserRole = async () => {
       if (userId) {
         try {
+          console.log("Fetching user role for:", userId);
           const { data, error } = await supabase
             .from('user_roles')
             .select('*')
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
             
-          if (!error && data) {
+          if (error) {
+            console.error("Error fetching user role:", error);
+          } else if (data) {
+            console.log("User role fetched:", data);
             setUserRole(data);
+          } else {
+            console.log("No user role found");
           }
         } catch (error) {
-          console.error("Error fetching user role:", error);
+          console.error("Exception fetching user role:", error);
         }
       }
     };
 
     if (userId) {
       fetchUserRole();
+    } else {
+      setUserRole(null);
     }
   }, [userId]);
 
   // Handle initial loading
   useEffect(() => {
     if (isLoaded && isUserLoaded) {
+      console.log("Auth loaded, user:", user?.id);
       setLoading(false);
     }
-  }, [isLoaded, isUserLoaded]);
+  }, [isLoaded, isUserLoaded, user]);
 
   // Implement auth methods that were previously in Supabase
   const signUp = async (email: string, password: string) => {
@@ -83,6 +93,9 @@ export function ClerkAuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await clerkSignOut();
+      toast({
+        title: "Signed out successfully",
+      });
       // Clear any local session state
       resetUserState();
     } finally {

@@ -1,261 +1,145 @@
-import { useRef, useState, useCallback } from "react";
+
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import ForceGraph2D from "react-force-graph-2d";
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { FamilyTreeControls } from "./FamilyTreeControls";
-import { FamilyMemberCard } from "./FamilyMemberCard";
-import { MemberDetailsPanel } from "./MemberDetailsPanel";
-import { GraphNode, GraphData } from "../types/graph-types";
-import { GENDER_COLORS } from "../utils/graph-constants";
+import { GraphData, GraphNode, FamilyTreeGraphProps } from "../types/graph-types";
+import { useGraphControls } from "../hooks/useGraphControls";
+import { nodeCanvasObject } from "../renderers/GraphRenderers";
+import { NodeClickHandler } from "../types/graph-types";
 
-interface FamilyTreeGraphProps {
-  data: GraphData;
-  currentUserId?: string | null;
-  onAddRelative?: (memberId: string) => void;
-  onEditMember?: (memberId: string) => void;
-}
-
-export function FamilyTreeGraph({ 
-  data, 
-  currentUserId, 
-  onAddRelative, 
-  onEditMember 
+export function FamilyTreeGraph({
+  members,
+  relationships,
+  currentUserId,
+  className,
+  onNodeClick,
 }: FamilyTreeGraphProps) {
-  const graphRef = useRef<any>(null);
+  const graphRef = useRef<any>();
+  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [detailsNode, setDetailsNode] = useState<GraphNode | null>(null);
+  const [highlightNodes, setHighlightNodes] = useState(new Set());
+  const [highlightLinks, setHighlightLinks] = useState(new Set());
   const [showImages, setShowImages] = useState(true);
-  const [isCompactView, setIsCompactView] = useState(false);
-  const isSmallScreen = useMediaQuery("(max-width: 640px)");
-  
-  // Handle zoom
-  const handleZoom = useCallback((factor: number) => {
-    if (graphRef.current) {
-      const currentZoom = graphRef.current.zoom();
-      graphRef.current.zoom(currentZoom * factor, 400);
+  const controls = useGraphControls(graphRef);
+
+  // Convert the input data to graph format
+  useEffect(() => {
+    if (!Array.isArray(members) || members.length === 0) {
+      console.log("FamilyTreeGraph: No members to display");
+      setGraphData({ nodes: [], links: [] });
+      return;
     }
-  }, []);
-  
-  // Handle center
-  const handleCenter = useCallback(() => {
-    if (graphRef.current) {
-      graphRef.current.centerAt(0, 0, 800);
-      graphRef.current.zoom(1, 800);
+
+    const rels = Array.isArray(relationships) ? relationships : [];
+    console.log(`FamilyTreeGraph: Processing ${members.length} members and ${rels.length} relationships`);
+
+    // Create nodes from family members
+    const nodes = members.map(member => ({
+      id: member.id,
+      name: `${member.first_name} ${member.last_name}`,
+      gender: member.gender || 'unknown',
+      photoUrl: member.photo_url,
+      isCurrentUser: member.id === currentUserId,
+      birthDate: member.birth_date,
+      deathDate: member.death_date,
+      isDeceased: Boolean(member.death_date)
+    }));
+
+    // Create links from relationships
+    const links = rels.map(rel => ({
+      source: rel.person1_id,
+      target: rel.person2_id,
+      type: rel.relationship_type,
+      id: rel.id
+    }));
+
+    setGraphData({ nodes, links });
+  }, [members, relationships, currentUserId]);
+
+  // Handle highlighting connected nodes on hover
+  const handleNodeHover = useCallback((node: GraphNode | null) => {
+    if (!graphRef.current || !node) {
+      setHighlightNodes(new Set());
+      setHighlightLinks(new Set());
+      return;
     }
-  }, []);
-  
-  // Handle focus on node
-  const handleFocusNode = useCallback((nodeId: string) => {
-    if (graphRef.current) {
-      const node = data.nodes.find(n => n.id === nodeId);
-      if (node) {
-        graphRef.current.centerAt(node.x, node.y, 800);
-        graphRef.current.zoom(1.5, 800);
+
+    // Get connected nodes
+    const graphLinks = graphData.links || [];
+    const connectedNodeIds = new Set<string>();
+    const connectedLinks = new Set();
+
+    graphLinks.forEach(link => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+
+      if (sourceId === node.id) {
+        connectedNodeIds.add(targetId as string);
+        connectedLinks.add(link);
+      } else if (targetId === node.id) {
+        connectedNodeIds.add(sourceId as string);
+        connectedLinks.add(link);
       }
+    });
+
+    // Always highlight the hovered node
+    connectedNodeIds.add(node.id);
+    setHighlightNodes(connectedNodeIds);
+    setHighlightLinks(connectedLinks);
+  }, [graphData]);
+
+  const handleNodeClick = useCallback((node: GraphNode) => {
+    console.log("Node clicked:", node);
+    setSelectedNode(node);
+    
+    // Call the parent component's handler if provided
+    if (onNodeClick) {
+      onNodeClick(node);
     }
-  }, [data.nodes]);
-  
-  // Toggle show images
-  const handleToggleShowImages = useCallback(() => {
-    setShowImages(!showImages);
-  }, [showImages]);
-  
-  // Toggle compact mode
-  const handleToggleCompactMode = useCallback(() => {
-    setIsCompactView(!isCompactView);
-  }, [isCompactView]);
-  
-  // Handle node interactions - combined the click and double click handlers
-  const handleNodeClick = useCallback((node: any) => {
-    // If there's already a selected node and it's the same one, treat it as a double-click
-    if (selectedNode && selectedNode.id === node.id) {
-      setSelectedNode(null);
-      setDetailsNode(node);
-    } else {
-      // First click - show quick view
-      setSelectedNode(node);
-    }
-  }, [selectedNode]);
-  
-  // Close quick view
-  const handleCloseQuickView = useCallback(() => {
+  }, [onNodeClick]);
+
+  const handleNodeDragEnd = useCallback((node: any) => {
+    // Fix node position
+    node.fx = node.x;
+    node.fy = node.y;
+  }, []);
+
+  const handleBackgroundClick = useCallback(() => {
     setSelectedNode(null);
+    setHighlightNodes(new Set());
+    setHighlightLinks(new Set());
   }, []);
-  
-  // Open detailed view from quick view
-  const handleOpenDetailedView = useCallback(() => {
-    if (selectedNode) {
-      setDetailsNode(selectedNode);
-      setSelectedNode(null);
-    }
-  }, [selectedNode]);
-  
-  // Close detailed view
-  const handleCloseDetailedView = useCallback(() => {
-    setDetailsNode(null);
-  }, []);
-  
-  // Custom node painting
-  const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    const { x, y, color = '#666', gender, photoUrl, name, isCurrentUser } = node;
-    
-    const nodeColor = color || (gender ? GENDER_COLORS[gender] || GENDER_COLORS.default : GENDER_COLORS.default);
-    const size = isCompactView ? 8 : (isCurrentUser ? 16 : 12);
-    const scaledSize = size / globalScale;
-    
-    // Draw node circle
-    ctx.beginPath();
-    ctx.arc(x, y, scaledSize, 0, 2 * Math.PI);
-    ctx.fillStyle = nodeColor;
-    ctx.fill();
-    
-    // Draw border
-    ctx.strokeStyle = isCurrentUser ? '#FFD700' : '#ffffff';
-    ctx.lineWidth = isCurrentUser ? 3 / globalScale : 1.5 / globalScale;
-    ctx.stroke();
-    
-    // Draw image if available and enabled
-    if (photoUrl && showImages && !isCompactView) {
-      try {
-        const img = new Image();
-        img.src = photoUrl;
-        
-        if (img.complete) {
-          const imgSize = scaledSize * 0.85;
-          
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(x, y, imgSize, 0, 2 * Math.PI);
-          ctx.clip();
-          ctx.drawImage(img, x - imgSize, y - imgSize, imgSize * 2, imgSize * 2);
-          ctx.restore();
-        }
-      } catch (error) {
-        console.error("Error loading image:", error);
-      }
-    }
-    
-    // Draw name label if zoom is sufficient and not in compact mode
-    if (!isCompactView && globalScale > 1.3) {
-      ctx.font = `${10 / globalScale}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#000';
-      ctx.fillText(name, x, y + scaledSize + 8 / globalScale);
-    }
-    
-    // Draw "YOU" indicator for current user
-    if (isCurrentUser) {
-      ctx.font = `bold ${9 / globalScale}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#FFD700';
-      ctx.fillText('YOU', x, y - scaledSize - 5 / globalScale);
-    }
-  }, [isCompactView, showImages]);
-  
-  // Custom link painting
-  const paintLink = useCallback((link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-    if (!link.source || !link.target) return;
-    
-    const source = typeof link.source === 'object' ? link.source : { x: 0, y: 0 };
-    const target = typeof link.target === 'object' ? link.target : { x: 0, y: 0 };
-    
-    ctx.beginPath();
-    ctx.moveTo(source.x, source.y);
-    ctx.lineTo(target.x, target.y);
-    
-    // Customize based on relationship type
-    let lineColor = '#999';
-    let lineWidth = 1;
-    let isDashed = false;
-    
-    switch (link.type) {
-      case 'spouse':
-        lineColor = '#E74C3C';
-        lineWidth = 2;
-        break;
-      case 'parent':
-      case 'child':
-        lineColor = '#3498DB';
-        lineWidth = 1.5;
-        break;
-      case 'sibling':
-        lineColor = '#2ECC71';
-        lineWidth = 1.5;
-        break;
-      default:
-        lineColor = '#999';
-        isDashed = true;
-    }
-    
-    ctx.strokeStyle = lineColor;
-    ctx.lineWidth = lineWidth / globalScale;
-    
-    if (isDashed) {
-      ctx.setLineDash([5 / globalScale, 5 / globalScale]);
-    } else {
-      ctx.setLineDash([]);
-    }
-    
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }, []);
-  
-  // Controls
-  const graphControls = {
-    zoom: handleZoom,
-    center: handleCenter,
-    focusNode: handleFocusNode,
-    toggleShowImages: handleToggleShowImages,
-    toggleCompactMode: handleToggleCompactMode,
-  };
-  
+
+  // If we have no data, show a message
+  if (!graphData || !graphData.nodes || graphData.nodes.length === 0) {
+    return (
+      <div className={`flex items-center justify-center p-8 ${className}`}>
+        <div className="text-center text-gray-500">
+          <p>No family members to display.</p>
+          <p className="text-sm mt-2">Add members to start building your family tree.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-[600px]">
-      <FamilyTreeControls 
-        controls={graphControls} 
-        hasCurrentUser={!!currentUserId} 
-        currentUserId={currentUserId}
-      />
-      
+    <div className={`relative w-full h-full ${className}`}>
       <ForceGraph2D
         ref={graphRef}
-        graphData={data}
-        nodeCanvasObject={paintNode}
-        linkCanvasObject={paintLink}
-        width={isSmallScreen ? window.innerWidth - 32 : undefined}
-        height={600}
-        linkDirectionalParticles={2}
-        linkDirectionalParticleWidth={2}
-        linkDirectionalParticleSpeed={0.005}
+        graphData={graphData}
+        nodeCanvasObject={(node, ctx, globalScale) => 
+          nodeCanvasObject(node, ctx, globalScale, highlightNodes, showImages)
+        }
+        linkColor={(link) => highlightLinks.has(link) ? '#f97316' : '#999'}
+        linkWidth={(link) => highlightLinks.has(link) ? 2 : 1}
+        linkDirectionalParticles={4}
+        linkDirectionalParticleWidth={(link) => highlightLinks.has(link) ? 4 : 0}
+        onNodeHover={handleNodeHover}
+        onNodeClick={handleNodeClick}
+        onBackgroundClick={handleBackgroundClick}
+        onNodeDragEnd={handleNodeDragEnd}
+        cooldownTicks={100}
         d3AlphaDecay={0.02}
         d3VelocityDecay={0.3}
-        warmupTicks={50}
-        cooldownTicks={50}
-        onNodeClick={handleNodeClick}
-        enableNodeDrag={true}
-        onNodeDragEnd={(node: any) => {
-          node.fx = node.x;
-          node.fy = node.y;
-        }}
-      />
-      
-      {/* Quick view card */}
-      {selectedNode && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <FamilyMemberCard 
-            member={selectedNode} 
-            onClose={handleCloseQuickView}
-            onViewDetails={handleOpenDetailedView}
-          />
-        </div>
-      )}
-      
-      {/* Detailed view panel */}
-      <MemberDetailsPanel 
-        member={detailsNode}
-        open={!!detailsNode}
-        onClose={handleCloseDetailedView}
-        onAddRelative={onAddRelative}
-        onEditMember={onEditMember}
       />
     </div>
   );

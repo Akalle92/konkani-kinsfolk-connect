@@ -27,12 +27,14 @@ export interface GraphData {
   links: GraphLink[];
 }
 
+export type NodeClickHandler = (node: GraphNode) => void;
+
 export interface FamilyTreeGraphProps {
   members: any[];
   relationships: any[];
   currentUserId?: string | null;
   className?: string;
-  onNodeClick?: (node: GraphNode) => void;
+  onNodeClick?: NodeClickHandler;
 }
 
 export interface GraphControls {

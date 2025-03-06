@@ -11,7 +11,7 @@ interface Tree {
 }
 
 interface TreesListProps {
-  trees: Tree[];
+  trees: Tree[] | null | undefined;
 }
 
 export function TreesList({ trees }: TreesListProps) {

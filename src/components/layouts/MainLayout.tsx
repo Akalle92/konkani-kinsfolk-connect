@@ -57,15 +57,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return null;
   }
 
-  // Only render children when authenticated
+  // Render children whether authenticated or not - let child components handle their visibility
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />
       <main className="flex-1">
-        {userId ? children : null}
+        {children}
       </main>
     </div>
   );
-};
+}
 
 export default MainLayout;
