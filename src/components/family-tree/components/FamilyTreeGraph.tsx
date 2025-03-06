@@ -1,43 +1,49 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import ForceGraph2D from "react-force-graph-2d";
-import { GraphData, GraphNode, GraphLink } from "../types/graph-types";
-import { useGraphControls } from "../hooks/useGraphControls";
-import { nodeCanvasObject } from "../renderers/GraphRenderers";
+import ForceGraph2D, { ForceGraphMethods } from "react-force-graph-2d";
+import { FamilyMember, Relationship } from "@/types/family";
 
-// Define a local interface for props instead of importing and creating a conflict
-interface FamilyTreeGraphProps {
-  members: GraphNode[];
-  relationships: any[];
-  currentUserId?: string | null;
-  className?: string;
-  onNodeClick?: (node: GraphNode) => void;
-  onEditMember?: (memberId: string) => void;
-  onAddRelative?: (memberId: string) => void;
+// Interface for graph node with position properties
+interface GraphNode extends FamilyMember {
+  x?: number;
+  y?: number;
+  fx?: number | null;
+  fy?: number | null;
 }
 
-// Define a helper type for Graph link source/target
+// Interface for graph link with source/target
+interface GraphLink extends Omit<Relationship, 'from' | 'to'> {
+  source: string;
+  target: string;
+}
+
+// Helper type for force graph node objects
 interface NodeObject {
   id: string;
   [key: string]: any;
 }
 
+export interface FamilyTreeGraphProps {
+  members: FamilyMember[];
+  relationships: Relationship[];
+  selectedMemberId?: string | null;
+  className?: string;
+  onNodeClick?: (node: GraphNode) => void;
+  onBackgroundClick?: () => void;
+}
+
 export function FamilyTreeGraph({
   members,
   relationships,
-  currentUserId,
-  className,
+  selectedMemberId,
+  className = "",
   onNodeClick,
-  onEditMember,
-  onAddRelative
+  onBackgroundClick
 }: FamilyTreeGraphProps) {
-  const graphRef = useRef<any>();
-  const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [highlightNodes, setHighlightNodes] = useState(new Set());
-  const [highlightLinks, setHighlightLinks] = useState(new Set());
-  const [showImages, setShowImages] = useState(true);
-  const controls = useGraphControls(graphRef);
+  const graphRef = useRef<ForceGraphMethods>();
+  const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({ nodes: [], links: [] });
+  const [highlightNodes, setHighlightNodes] = useState(new Set<string>());
+  const [highlightLinks, setHighlightLinks] = useState(new Set<Relationship>());
 
   // Convert the input data to graph format
   useEffect(() => {
@@ -47,13 +53,19 @@ export function FamilyTreeGraph({
       return;
     }
 
-    const rels = Array.isArray(relationships) ? relationships : [];
-    console.log(`FamilyTreeGraph: Processing ${members.length} members and ${rels.length} relationships`);
+    const nodes: GraphNode[] = members.map(member => ({
+      ...member
+    }));
 
-    setGraphData({ 
-      nodes: members,
-      links: rels
-    });
+    const links: GraphLink[] = Array.isArray(relationships) 
+      ? relationships.map(rel => ({
+          ...rel,
+          source: rel.from,
+          target: rel.to
+        }))
+      : [];
+
+    setGraphData({ nodes, links });
   }, [members, relationships]);
 
   // Handle highlighting connected nodes on hover
@@ -65,15 +77,13 @@ export function FamilyTreeGraph({
     }
 
     // Get connected nodes
-    const graphLinks = graphData.links || [];
     const connectedNodeIds = new Set<string>();
-    const connectedLinks = new Set();
+    const connectedLinks = new Set<GraphLink>();
 
-    graphLinks.forEach(link => {
+    graphData.links.forEach(link => {
       // Skip links with null source or target
       if (link.source === null || link.target === null) return;
       
-      // Safely extract IDs
       let sourceId = '';
       let targetId = '';
       
@@ -109,9 +119,13 @@ export function FamilyTreeGraph({
     setHighlightLinks(connectedLinks);
   }, [graphData]);
 
+  // Handle node click event
   const handleNodeClick = useCallback((node: GraphNode) => {
     console.log("Node clicked:", node);
-    setSelectedNode(node);
+    
+    // Fix node position on click
+    node.fx = node.x;
+    node.fy = node.y;
     
     // Call the parent component's handler if provided
     if (onNodeClick) {
@@ -119,20 +133,59 @@ export function FamilyTreeGraph({
     }
   }, [onNodeClick]);
 
-  const handleNodeDragEnd = useCallback((node: any) => {
+  // Handle node drag end event
+  const handleNodeDragEnd = useCallback((node: GraphNode) => {
     // Fix node position
     node.fx = node.x;
     node.fy = node.y;
   }, []);
 
+  // Handle background click event
   const handleBackgroundClick = useCallback(() => {
-    setSelectedNode(null);
     setHighlightNodes(new Set());
     setHighlightLinks(new Set());
-  }, []);
+    
+    if (onBackgroundClick) {
+      onBackgroundClick();
+    }
+  }, [onBackgroundClick]);
+
+  // Custom node renderer
+  const renderNode = useCallback((node: GraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const { id, name, gender, isAlive } = node;
+    const isHighlighted = selectedMemberId === id || highlightNodes.has(id);
+    const size = isHighlighted ? 12 : 8;
+    const fontSize = isHighlighted ? 14 / globalScale : 12 / globalScale;
+    
+    // Determine node color based on gender and alive status
+    let color = '#999';
+    if (gender === 'male') color = '#1E40AF'; // Blue
+    if (gender === 'female') color = '#BE185D'; // Pink
+    if (gender === 'other') color = '#047857'; // Green
+    
+    // Apply opacity for deceased members
+    const opacity = isAlive ? 1 : 0.6;
+    
+    // Draw node circle
+    ctx.beginPath();
+    ctx.arc(node.x || 0, node.y || 0, size, 0, 2 * Math.PI);
+    ctx.fillStyle = isHighlighted ? '#F97316' : color; // Highlight in orange
+    ctx.fill();
+    ctx.strokeStyle = isHighlighted ? '#FFFFFF' : '#CCCCCC';
+    ctx.lineWidth = isHighlighted ? 2 : 1;
+    ctx.stroke();
+    
+    // Draw node label
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = `${fontSize}px Sans-Serif`;
+    ctx.fillStyle = isHighlighted ? '#000000' : '#666666';
+    ctx.fillText(name, node.x || 0, (node.y || 0) + size + 2);
+    
+  }, [selectedMemberId, highlightNodes]);
 
   // If we have no data, show a message
-  if (!graphData || !graphData.nodes || graphData.nodes.length === 0) {
+  if (!graphData.nodes || graphData.nodes.length === 0) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="text-center text-gray-500">
@@ -146,15 +199,13 @@ export function FamilyTreeGraph({
   return (
     <div className={`relative w-full h-full ${className}`}>
       <ForceGraph2D
-        ref={graphRef}
+        ref={graphRef as React.MutableRefObject<ForceGraphMethods>}
         graphData={graphData}
-        nodeCanvasObject={(node, ctx, globalScale) => 
-          nodeCanvasObject(node, ctx, globalScale)
-        }
-        linkColor={(link) => highlightLinks.has(link) ? '#f97316' : '#999'}
-        linkWidth={(link) => highlightLinks.has(link) ? 2 : 1}
+        nodeCanvasObject={renderNode}
+        linkColor={(link) => highlightLinks.has(link as any) ? '#f97316' : '#999'}
+        linkWidth={(link) => highlightLinks.has(link as any) ? 2 : 1}
         linkDirectionalParticles={4}
-        linkDirectionalParticleWidth={(link) => highlightLinks.has(link) ? 4 : 0}
+        linkDirectionalParticleWidth={(link) => highlightLinks.has(link as any) ? 4 : 0}
         onNodeHover={handleNodeHover}
         onNodeClick={handleNodeClick}
         onBackgroundClick={handleBackgroundClick}
