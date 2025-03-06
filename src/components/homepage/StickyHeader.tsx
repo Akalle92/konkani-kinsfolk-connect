@@ -1,28 +1,18 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { TreePine, LogOut } from "lucide-react";
-import { User } from "@supabase/supabase-js";
+import { TreePine } from "lucide-react";
+import { useAuth, UserButton } from "@clerk/clerk-react";
 
 interface StickyHeaderProps {
-  user: User | null;
-  onSignOut: () => Promise<void>;
   navigateToAuth: () => void;
   navigateToTrees: () => void;
 }
 
-export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees }: StickyHeaderProps) => {
+export const StickyHeader = ({ navigateToAuth, navigateToTrees }: StickyHeaderProps) => {
   const [isSticky, setIsSticky] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const handleSignOut = async () => {
-    try {
-      setIsSigningOut(true);
-      await onSignOut();
-    } finally {
-      setIsSigningOut(false);
-    }
-  };
+  const { userId, isLoaded } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,7 +41,7 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            {user ? (
+            {isLoaded && userId ? (
               <>
                 <Button
                   variant="ghost"
@@ -62,16 +52,7 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
                 >
                   My Trees
                 </Button>
-                <Button
-                  className="bg-secondary text-black hover:bg-secondary/90 font-semibold"
-                  onClick={handleSignOut}
-                  isLoading={isSigningOut}
-                  loadingText="Signing out..."
-                  disabled={isSigningOut}
-                >
-                  {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
-                  Sign Out
-                </Button>
+                <UserButton afterSignOutUrl="/" />
               </>
             ) : (
               <>
@@ -131,7 +112,7 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-4 bg-white rounded-lg shadow-lg animate-fade-in">
             <div className="flex flex-col space-y-2 p-4">
-              {user ? (
+              {isLoaded && userId ? (
                 <>
                   <Button
                     variant="ghost"
@@ -140,16 +121,9 @@ export const StickyHeader = ({ user, onSignOut, navigateToAuth, navigateToTrees 
                   >
                     My Trees
                   </Button>
-                  <Button
-                    className="bg-secondary text-black hover:bg-secondary/90 font-semibold justify-start"
-                    onClick={handleSignOut}
-                    isLoading={isSigningOut}
-                    loadingText="Signing out..."
-                    disabled={isSigningOut}
-                  >
-                    {!isSigningOut && <LogOut className="mr-2 h-4 w-4" />}
-                    Sign Out
-                  </Button>
+                  <div className="flex justify-center mt-2">
+                    <UserButton afterSignOutUrl="/" />
+                  </div>
                 </>
               ) : (
                 <>

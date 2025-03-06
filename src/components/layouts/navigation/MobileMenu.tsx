@@ -1,32 +1,27 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { LogIn, LogOut, Loader2 } from "lucide-react";
+import { LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NavItem } from "./types";
+import { useAuth, UserButton } from "@clerk/clerk-react";
 
 interface MobileMenuProps {
   isMenuOpen: boolean;
   navItems: NavItem[];
   isActive: (path: string) => boolean;
   closeMenu: () => void;
-  user: any;
-  loading: boolean;
-  isSigningOut: boolean;
-  handleSignOut: () => Promise<void>;
 }
 
 const MobileMenu = ({
   isMenuOpen,
   navItems,
   isActive,
-  closeMenu,
-  user,
-  loading,
-  isSigningOut,
-  handleSignOut
+  closeMenu
 }: MobileMenuProps) => {
+  const { userId, isLoaded } = useAuth();
+  
   if (!isMenuOpen) return null;
   
   return (
@@ -52,33 +47,15 @@ const MobileMenu = ({
           </Button>
         ))}
         
-        {loading ? (
+        {!isLoaded ? (
           <div className="flex items-center py-2">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             <span className="text-sm text-muted-foreground">Loading...</span>
           </div>
-        ) : user ? (
-          <Button 
-            variant="outline" 
-            className="w-full justify-start mt-4"
-            onClick={() => {
-              handleSignOut();
-              closeMenu();
-            }}
-            disabled={isSigningOut}
-          >
-            {isSigningOut ? (
-              <span className="flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span>Signing out...</span>
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </span>
-            )}
-          </Button>
+        ) : userId ? (
+          <div className="flex justify-center mt-4">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         ) : (
           <Button 
             asChild 

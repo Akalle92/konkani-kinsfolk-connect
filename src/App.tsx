@@ -2,13 +2,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
-import { AuthProvider } from "./contexts/auth/AuthContext";
+import { ClerkAuthProvider } from "./contexts/auth/ClerkAuthContext";
 import MainLayout from "./components/layouts/MainLayout";
 
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
+import ClerkAuth from "./pages/ClerkAuth";
 import Trees from "./pages/Trees";
 import TreeView from "./pages/TreeView";
 import Dashboard from "./pages/Dashboard";
@@ -30,21 +28,19 @@ function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+        <ClerkAuthProvider>
           <Toaster richColors position="top-right" />
           <Routes>
             {/* Public routes that don't require authentication */}
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/auth" element={<ClerkAuth />} />
             
             {/* Protected routes that require authentication */}
             <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
             <Route path="/trees" element={<MainLayout><Trees /></MainLayout>} />
             <Route path="/trees/:id" element={<MainLayout><TreeView /></MainLayout>} />
           </Routes>
-        </AuthProvider>
+        </ClerkAuthProvider>
       </QueryClientProvider>
     </Router>
   );

@@ -1,23 +1,18 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { LogIn, LogOut, Loader2 } from "lucide-react";
+import { LogIn, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth, UserButton } from "@clerk/clerk-react";
 
 interface AuthButtonsProps {
-  user: any;
-  loading: boolean;
-  isSigningOut: boolean;
-  handleSignOut: () => Promise<void>;
+  loading?: boolean;
 }
 
-const AuthButtons = ({ 
-  user, 
-  loading, 
-  isSigningOut, 
-  handleSignOut 
-}: AuthButtonsProps) => {
-  if (loading) {
+const AuthButtons = ({ loading }: AuthButtonsProps) => {
+  const { userId, isLoaded } = useAuth();
+
+  if (!isLoaded || loading) {
     return (
       <div className="flex items-center">
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -26,31 +21,11 @@ const AuthButtons = ({
     );
   }
 
-  if (user) {
+  if (userId) {
     return (
-      <>
-        <span className="text-sm text-muted-foreground mr-2">
-          {user.email?.split('@')[0]}
-        </span>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-        >
-          {isSigningOut ? (
-            <span className="flex items-center">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              <span>Signing out...</span>
-            </span>
-          ) : (
-            <span className="flex items-center">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
-            </span>
-          )}
-        </Button>
-      </>
+      <div className="flex items-center space-x-2">
+        <UserButton afterSignOutUrl="/" />
+      </div>
     );
   }
 

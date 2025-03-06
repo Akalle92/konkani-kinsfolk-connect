@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/auth/hooks";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react";
 import { 
   Home,
   User,
@@ -10,19 +10,15 @@ import {
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import DesktopNavigation from "./navigation/DesktopNavigation";
 import AuthButtons from "./navigation/AuthButtons";
 import MobileMenu from "./navigation/MobileMenu";
 import { NavItem } from "./navigation/types";
 
 const MainNavigation = () => {
-  const { user, signOut, loading } = useAuth();
+  const { userId, isLoaded } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -30,25 +26,6 @@ const MainNavigation = () => {
 
   const closeMenu = () => {
     setIsMenuOpen(false);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      setIsSigningOut(true);
-      await signOut();
-      // After sign out, navigate to home page
-      navigate('/');
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast({
-        title: "Error signing out",
-        description: "There was a problem signing out. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSigningOut(false);
-      closeMenu(); // Close menu after sign out
-    }
   };
 
   const navItems: NavItem[] = [
@@ -74,15 +51,13 @@ const MainNavigation = () => {
             </Link>
           </div>
 
-          <DesktopNavigation navItems={navItems.filter(item => !item.requiresAuth || user)} isActive={isActive} />
+          <DesktopNavigation 
+            navItems={navItems.filter(item => !item.requiresAuth || userId)} 
+            isActive={isActive} 
+          />
 
           <div className="hidden md:flex md:items-center md:space-x-2">
-            <AuthButtons 
-              user={user} 
-              loading={loading} 
-              isSigningOut={isSigningOut} 
-              handleSignOut={handleSignOut} 
-            />
+            <AuthButtons loading={!isLoaded} />
           </div>
 
           <div className="flex md:hidden">
@@ -95,13 +70,9 @@ const MainNavigation = () => {
 
       <MobileMenu 
         isMenuOpen={isMenuOpen}
-        navItems={navItems.filter(item => !item.requiresAuth || user)}
+        navItems={navItems.filter(item => !item.requiresAuth || userId)}
         isActive={isActive}
         closeMenu={closeMenu}
-        user={user}
-        loading={loading}
-        isSigningOut={isSigningOut}
-        handleSignOut={handleSignOut}
       />
     </nav>
   );

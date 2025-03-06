@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NavItem } from "./types";
-import { useAuth } from "@/contexts/auth/hooks";
+import { useAuth } from "@clerk/clerk-react";
 
 interface DesktopNavigationProps {
   navItems: NavItem[];
@@ -11,11 +12,11 @@ interface DesktopNavigationProps {
 }
 
 const DesktopNavigation = ({ navItems, isActive }: DesktopNavigationProps) => {
-  const { user } = useAuth();
+  const { userId } = useAuth();
   
   // Filter navigation items based on authentication status
   const filteredNavItems = navItems.filter(item => 
-    !item.requiresAuth || (item.requiresAuth && user)
+    !item.requiresAuth || (item.requiresAuth && userId)
   );
 
   return (
