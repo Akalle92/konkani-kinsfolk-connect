@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
-import { useAuth } from "@/contexts/auth/hooks";
 import { useToast } from "@/hooks/use-toast";
 import { StickyHeader } from "@/components/homepage/StickyHeader";
 import { AnimatedHero } from "@/components/homepage/AnimatedHero";
@@ -13,30 +12,17 @@ import { GlobalCommunitySection } from "@/components/homepage/GlobalCommunitySec
 import { CtaSection } from "@/components/homepage/CtaSection";
 import { Footer } from "@/components/homepage/Footer";
 import { features, stats, testimonials } from "@/components/homepage/data/homepageData";
+import { useAuth } from "@clerk/clerk-react";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { userId } = useAuth();
   const { toast } = useToast();
   const [showScrollToTop, setShowScrollToTop] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/auth");
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error signing out",
-        description: "There was a problem signing out. Please try again.",
-      });
-    }
-  };
-
   const handleTreesNavigation = () => {
-    if (user) {
+    if (userId) {
       navigate("/trees");
     } else {
       navigate("/auth");
@@ -66,8 +52,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-accent overflow-x-hidden">
       <StickyHeader 
-        user={user} 
-        onSignOut={handleSignOut} 
         navigateToAuth={() => navigate("/auth")}
         navigateToTrees={() => navigate("/trees")}
       />
@@ -75,7 +59,7 @@ const Index = () => {
       <main>
         <AnimatedHero 
           onExploreClick={handleTreesNavigation}
-          user={user}
+          user={userId ? { id: userId } : null}
         />
 
         <FeatureSection features={features} />

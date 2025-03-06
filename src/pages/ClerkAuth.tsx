@@ -58,7 +58,6 @@ const ClerkAuth = () => {
                     }
                   }
                 }}
-                afterSignIn={handleSignInComplete}
               />
               <div className="text-sm text-muted-foreground text-center mt-6">
                 Don't have an account?{" "}
@@ -72,6 +71,7 @@ const ClerkAuth = () => {
               <SignUp 
                 signInUrl="/auth"
                 redirectUrl="/dashboard"
+                afterSignUpUrl="/dashboard"
                 appearance={{
                   elements: {
                     card: "shadow-none",
@@ -82,7 +82,6 @@ const ClerkAuth = () => {
                     }
                   }
                 }}
-                afterSignUp={handleSignUpComplete}
               />
               <div className="text-sm text-muted-foreground text-center mt-6">
                 Already have an account?{" "}
