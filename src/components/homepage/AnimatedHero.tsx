@@ -1,12 +1,10 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { User } from "@supabase/supabase-js";
 
 interface AnimatedHeroProps {
   onExploreClick: () => void;
-  user: User | null;
+  user: { id: string } | null;
 }
 
 export const AnimatedHero = ({ onExploreClick, user }: AnimatedHeroProps) => {
