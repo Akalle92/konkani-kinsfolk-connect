@@ -15,8 +15,8 @@ interface GraphNode extends FamilyMember {
 interface GraphLink {
   id: string;
   type: 'parent-child' | 'spouse' | 'sibling';
-  source: string;
-  target: string;
+  source: string | any;
+  target: string | any;
   metadata?: Record<string, any>;
   // Original properties for conversion
   from?: string;
@@ -33,18 +33,24 @@ export interface FamilyTreeGraphProps {
   members: FamilyMember[];
   relationships: Relationship[];
   selectedMemberId?: string | null;
+  currentUserId?: string | null;
   className?: string;
   onNodeClick?: (node: GraphNode) => void;
   onBackgroundClick?: () => void;
+  onEditMember?: (memberId: string) => void;
+  onAddRelative?: (memberId: string) => void;
 }
 
 export function FamilyTreeGraph({
   members,
   relationships,
   selectedMemberId,
+  currentUserId,
   className = "",
   onNodeClick,
-  onBackgroundClick
+  onBackgroundClick,
+  onEditMember,
+  onAddRelative
 }: FamilyTreeGraphProps) {
   const graphRef = useRef<ForceGraphMethods>();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[], links: GraphLink[] }>({ nodes: [], links: [] });

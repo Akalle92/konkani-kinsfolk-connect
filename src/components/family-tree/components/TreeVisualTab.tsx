@@ -41,13 +41,19 @@ export function TreeVisualTab({
     metadata: {}
   }));
   
-  const relationships: Relationship[] = graphData.links.map(link => ({
-    id: typeof link.source === 'object' && link.source ? link.source.id : (link.source as string),
-    type: (link.type || 'parent-child') as 'parent-child' | 'spouse' | 'sibling',
-    from: typeof link.source === 'object' && link.source ? link.source.id : (link.source as string),
-    to: typeof link.target === 'object' && link.target ? link.target.id : (link.target as string),
-    metadata: {}
-  }));
+  const relationships: Relationship[] = graphData.links.map(link => {
+    // Safe extraction of source and target IDs
+    const sourceId = typeof link.source === 'object' && link.source ? link.source.id : String(link.source);
+    const targetId = typeof link.target === 'object' && link.target ? link.target.id : String(link.target);
+    
+    return {
+      id: sourceId + '-' + targetId, // Generate an ID if not present
+      type: (link.type || 'parent-child') as 'parent-child' | 'spouse' | 'sibling',
+      from: sourceId,
+      to: targetId,
+      metadata: {}
+    };
+  });
 
   return (
     <div className="space-y-6">

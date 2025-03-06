@@ -16,8 +16,8 @@ export interface GraphNode {
 }
 
 export interface GraphLink {
-  source: string;
-  target: string;
+  source: string | any;
+  target: string | any;
   type: string;
   notes?: string;
 }
