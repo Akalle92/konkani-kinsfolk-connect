@@ -1,21 +1,16 @@
-import { Card } from "@/components/ui/card";
 
-interface FamilyMember {
-  id: string;
-  first_name: string;
-  middle_name: string | null;
-  last_name: string;
-  birth_date: string | null;
-  birth_place: string | null;
-  gender: string | null;
-}
+import { Card } from "@/components/ui/card";
+import { FamilyMember } from "./types";
 
 interface MembersListProps {
   members: FamilyMember[];
 }
 
 export function MembersList({ members }: MembersListProps) {
-  if (members.length === 0) {
+  // Safety check to ensure members is an array
+  const validMembers = Array.isArray(members) ? members : [];
+  
+  if (validMembers.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">No family members added yet.</p>
@@ -25,7 +20,7 @@ export function MembersList({ members }: MembersListProps) {
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {members.map((member) => (
+      {validMembers.map((member) => (
         <Card
           key={member.id}
           className="p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow"
@@ -46,6 +41,11 @@ export function MembersList({ members }: MembersListProps) {
           )}
           {member.gender && (
             <p className="text-sm text-gray-600">Gender: {member.gender}</p>
+          )}
+          {member.death_date && (
+            <p className="text-sm text-gray-600">
+              Died: {new Date(member.death_date).toLocaleDateString()}
+            </p>
           )}
         </Card>
       ))}

@@ -151,7 +151,7 @@ const TreeView = () => {
     );
   }
 
-  const hasMembers = members && members.length > 0;
+  const hasMembers = Array.isArray(members) && members.length > 0;
   const graphData = prepareGraphData(members, relationships, currentUserMemberId);
 
   return (
@@ -258,13 +258,13 @@ const TreeView = () => {
             </TabsContent>
             
             <TabsContent value="list" className="mt-4">
-              <MembersList members={members || []} />
+              <MembersList members={members} />
             </TabsContent>
           </Tabs>
         </div>
       )}
     </div>
   );
-};
+}
 
 export default TreeView;

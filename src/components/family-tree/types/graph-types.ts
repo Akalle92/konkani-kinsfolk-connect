@@ -33,7 +33,6 @@ export interface FamilyTreeGraphProps {
   currentUserId?: string | null;
   className?: string;
   onNodeClick?: (node: GraphNode) => void;
-  onNodeDoubleClick?: (node: GraphNode) => void;
 }
 
 export interface GraphControls {

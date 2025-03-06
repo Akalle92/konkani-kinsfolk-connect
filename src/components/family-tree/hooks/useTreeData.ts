@@ -112,8 +112,8 @@ export function useTreeData(treeId: string | undefined) {
 
   return {
     tree,
-    members,
-    relationships,
+    members: members || [],
+    relationships: relationships || [],
     isLoading,
     error,
   };

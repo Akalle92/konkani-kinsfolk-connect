@@ -6,7 +6,7 @@ import { FolderTree } from 'lucide-react';
 interface Tree {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   created_at: string;
 }
 
@@ -15,7 +15,10 @@ interface TreesListProps {
 }
 
 export function TreesList({ trees }: TreesListProps) {
-  if (trees.length === 0) {
+  // Safety check to ensure trees is an array
+  const validTrees = Array.isArray(trees) ? trees : [];
+  
+  if (validTrees.length === 0) {
     return (
       <EmptyState
         title="No family trees yet"
@@ -33,7 +36,7 @@ export function TreesList({ trees }: TreesListProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {trees.map((tree) => (
+      {validTrees.map((tree) => (
         <TreeCard
           key={tree.id}
           id={tree.id}
