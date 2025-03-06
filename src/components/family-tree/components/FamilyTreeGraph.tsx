@@ -4,7 +4,16 @@ import ForceGraph2D from "react-force-graph-2d";
 import { GraphData, GraphNode, FamilyTreeGraphProps } from "../types/graph-types";
 import { useGraphControls } from "../hooks/useGraphControls";
 import { nodeCanvasObject } from "../renderers/GraphRenderers";
-import { NodeClickHandler } from "../types/graph-types";
+
+interface FamilyTreeGraphProps {
+  members: GraphNode[];
+  relationships: any[];
+  currentUserId?: string | null;
+  className?: string;
+  onNodeClick?: (node: GraphNode) => void;
+  onEditMember?: (memberId: string) => void;
+  onAddRelative?: (memberId: string) => void;
+}
 
 export function FamilyTreeGraph({
   members,
@@ -12,6 +21,8 @@ export function FamilyTreeGraph({
   currentUserId,
   className,
   onNodeClick,
+  onEditMember,
+  onAddRelative
 }: FamilyTreeGraphProps) {
   const graphRef = useRef<any>();
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -32,28 +43,11 @@ export function FamilyTreeGraph({
     const rels = Array.isArray(relationships) ? relationships : [];
     console.log(`FamilyTreeGraph: Processing ${members.length} members and ${rels.length} relationships`);
 
-    // Create nodes from family members
-    const nodes = members.map(member => ({
-      id: member.id,
-      name: `${member.first_name} ${member.last_name}`,
-      gender: member.gender || 'unknown',
-      photoUrl: member.photo_url,
-      isCurrentUser: member.id === currentUserId,
-      birthDate: member.birth_date,
-      deathDate: member.death_date,
-      isDeceased: Boolean(member.death_date)
-    }));
-
-    // Create links from relationships
-    const links = rels.map(rel => ({
-      source: rel.person1_id,
-      target: rel.person2_id,
-      type: rel.relationship_type,
-      id: rel.id
-    }));
-
-    setGraphData({ nodes, links });
-  }, [members, relationships, currentUserId]);
+    setGraphData({ 
+      nodes: members,
+      links: rels
+    });
+  }, [members, relationships]);
 
   // Handle highlighting connected nodes on hover
   const handleNodeHover = useCallback((node: GraphNode | null) => {
@@ -69,8 +63,8 @@ export function FamilyTreeGraph({
     const connectedLinks = new Set();
 
     graphLinks.forEach(link => {
-      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
+      const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
 
       if (sourceId === node.id) {
         connectedNodeIds.add(targetId as string);

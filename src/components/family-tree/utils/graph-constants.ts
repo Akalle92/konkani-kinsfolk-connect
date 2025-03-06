@@ -1,10 +1,11 @@
 
 // Gender-based node colors
 export const GENDER_COLORS = {
-  Male: "#0EA5E9",   // Ocean blue
-  Female: "#D946EF", // Magenta pink
-  Other: "#8B5CF6",  // Vivid purple
-  default: "#64748B" // Slate gray for unknown
+  Male: "#0EA5E9",     // Ocean blue
+  Female: "#D946EF",   // Magenta pink
+  Other: "#8B5CF6",    // Vivid purple
+  unknown: "#64748B",  // Slate gray for unknown
+  default: "#64748B"   // Default fallback
 };
 
 // Map relationship types to colors and styles

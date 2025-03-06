@@ -30,11 +30,13 @@ export interface GraphData {
 export type NodeClickHandler = (node: GraphNode) => void;
 
 export interface FamilyTreeGraphProps {
-  members: any[];
-  relationships: any[];
+  members: GraphNode[];
+  relationships: GraphLink[];
   currentUserId?: string | null;
   className?: string;
   onNodeClick?: NodeClickHandler;
+  onEditMember?: (memberId: string) => void;
+  onAddRelative?: (memberId: string) => void;
 }
 
 export interface GraphControls {

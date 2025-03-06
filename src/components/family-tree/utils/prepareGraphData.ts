@@ -22,12 +22,14 @@ export function prepareGraphData(
 
   const nodes: GraphNode[] = members.map((member) => {
     const isDeceased = member.death_date != null && member.death_date !== "";
+    const genderKey = (member.gender || "default") as keyof typeof GENDER_COLORS;
+    const color = GENDER_COLORS[genderKey] || GENDER_COLORS.default;
     
     return {
       id: member.id,
       name: `${member.first_name} ${member.last_name}`,
       gender: member.gender || "unknown",
-      color: GENDER_COLORS[member.gender || "unknown"] || GENDER_COLORS.unknown,
+      color: color,
       photoUrl: member.photo_url || undefined,
       isCurrentUser: member.id === currentUserId,
       isDeceased: isDeceased,
