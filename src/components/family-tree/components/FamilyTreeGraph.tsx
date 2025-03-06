@@ -67,8 +67,14 @@ export function FamilyTreeGraph({
       // Skip links with null source or target
       if (link.source === null || link.target === null) return;
       
-      const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
-      const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
+      // Safely extract IDs, ensuring we don't access properties of null/undefined
+      const sourceId = typeof link.source === 'object' && link.source ? 
+                      (link.source.id || '') : 
+                      (link.source || '');
+                      
+      const targetId = typeof link.target === 'object' && link.target ? 
+                      (link.target.id || '') : 
+                      (link.target || '');
 
       // Only add valid node IDs to the connected set
       if (sourceId && sourceId === node.id) {
