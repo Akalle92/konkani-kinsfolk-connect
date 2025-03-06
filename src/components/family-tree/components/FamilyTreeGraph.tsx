@@ -64,13 +64,13 @@ export function FamilyTreeGraph({
     const connectedLinks = new Set();
 
     graphLinks.forEach(link => {
-      // Add null checks and type guards for link.source and link.target
-      if (!link.source || !link.target) return;
+      // Skip links with null source or target
+      if (link.source === null || link.target === null) return;
       
       const sourceId = typeof link.source === 'object' ? (link.source?.id || '') : link.source || '';
       const targetId = typeof link.target === 'object' ? (link.target?.id || '') : link.target || '';
 
-      // Add additional null checks for sourceId and targetId when comparing
+      // Only add valid node IDs to the connected set
       if (sourceId && sourceId === node.id) {
         if (targetId) connectedNodeIds.add(targetId as string);
         connectedLinks.add(link);
