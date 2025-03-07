@@ -1,10 +1,11 @@
 
 import { ReactNode, useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAuth } from "@/contexts/auth/hooks";
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -72,7 +73,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-background">
-        {children}
+        {children || <Outlet />}
       </main>
     </div>
   );
