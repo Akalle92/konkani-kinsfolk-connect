@@ -1,4 +1,3 @@
-
 import { ReactNode, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
@@ -13,7 +12,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   
-  // Check if it's user's first time
   useEffect(() => {
     if (user) {
       const hasVisitedBefore = localStorage.getItem(`dashboard-visited-${user.id}`);
@@ -27,7 +25,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Mobile menu trigger */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -54,7 +51,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </button>
       </div>
       
-      {/* Sidebar - hidden on mobile, shown on desktop */}
       <div className={`
         fixed inset-0 z-40 lg:relative lg:z-0 lg:flex
         transition-transform duration-300 ease-in-out
@@ -62,7 +58,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       `}>
         <DashboardSidebar />
         
-        {/* Backdrop for mobile */}
         {isMobileMenuOpen && (
           <div 
             className="fixed inset-0 bg-black/50 lg:hidden" 
@@ -71,9 +66,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
       </div>
       
-      {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-background">
-        {children || <Outlet />}
+        {children ?? <Outlet />}
       </main>
     </div>
   );
