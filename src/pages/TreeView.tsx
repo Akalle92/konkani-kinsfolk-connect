@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTreeData } from "@/components/family-tree/hooks/useTreeData";
 import { useMemberMutations } from "@/components/family-tree/hooks/useMemberMutations";
 import { useRelationshipMutations } from "@/components/family-tree/hooks/useRelationshipMutations";
-import { useAuth } from "@/contexts/auth/hooks";
+import { useAuth } from "@clerk/clerk-react";
 import { toast } from "sonner";
 import {
   Tabs,
@@ -23,7 +23,7 @@ import { TreeNotFoundState } from "@/components/family-tree/components/TreeNotFo
 
 const TreeView = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { userId, user } = useAuth();
   const [currentTab, setCurrentTab] = useState("visualization");
   const [currentUserMemberId, setCurrentUserMemberId] = useState<string | null>(null);
   
@@ -43,11 +43,11 @@ const TreeView = () => {
 
   useEffect(() => {
     if (user && members && members.length > 0) {
-      const userEmailPrefix = user.email?.split('@')[0] || '';
+      const userEmailPrefix = user.primaryEmailAddress?.emailAddress?.split('@')[0] || '';
       
       const currentMember = members.find(member => 
         `${member.first_name}`.toLowerCase() === userEmailPrefix.toLowerCase() ||
-        member.notes?.includes(user.email || '')
+        member.notes?.includes(user.primaryEmailAddress?.emailAddress || '')
       );
       
       if (currentMember) {

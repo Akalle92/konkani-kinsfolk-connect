@@ -19,26 +19,24 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
     // Only run the auth check when auth is not loading anymore
     if (isLoaded) {
       setAuthChecked(true);
+
+      // For public routes, we don't need to redirect
+      const isPublicRoute = location.pathname === '/auth' || location.pathname === '/';
       
-      if (!userId) {
+      if (!userId && !isPublicRoute) {
         console.log("MainLayout: No user found, redirecting to auth", location.pathname);
         
         // Store the current path to redirect back after login
-        if (location.pathname !== '/auth' && location.pathname !== '/') {
-          sessionStorage.setItem('redirectAfterLogin', location.pathname);
-        }
+        sessionStorage.setItem('redirectAfterLogin', location.pathname);
         
-        // Use navigate instead of window.location for SPA routing
+        // Navigate to auth
         navigate('/auth');
         
-        // Only show toast if not on the auth page already
-        if (location.pathname !== '/auth') {
-          toast.error("Authentication required", {
-            description: "Please sign in to access this page",
-          });
-        }
+        toast.error("Authentication required", {
+          description: "Please sign in to access this page",
+        });
       } else {
-        console.log("MainLayout: User authenticated", userId);
+        console.log("MainLayout: User authenticated or on public route", userId);
       }
     }
   }, [userId, navigate, isLoaded, location.pathname]);
@@ -57,7 +55,7 @@ const MainLayout: React.FC<MainLayoutProps> = () => {
     return null;
   }
 
-  // Use Outlet from react-router-dom to render the nested routes
+  // Use Outlet to render the nested routes
   return (
     <div className="min-h-screen flex flex-col">
       <MainNavigation />

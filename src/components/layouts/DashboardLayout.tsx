@@ -1,27 +1,47 @@
+
 import { ReactNode, useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { useAuth } from "@/contexts/auth/hooks";
+import { useAuth } from "@clerk/clerk-react";
 
 interface DashboardLayoutProps {
   children?: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth();
+  const { userId, isLoaded } = useAuth();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   
   useEffect(() => {
-    if (user) {
-      const hasVisitedBefore = localStorage.getItem(`dashboard-visited-${user.id}`);
+    if (isLoaded && !userId) {
+      // Redirect to auth page if no user is logged in
+      navigate('/auth');
+      return;
+    }
+    
+    if (userId) {
+      const hasVisitedBefore = localStorage.getItem(`dashboard-visited-${userId}`);
       
       if (!hasVisitedBefore) {
         setIsFirstTimeUser(true);
-        localStorage.setItem(`dashboard-visited-${user.id}`, 'true');
+        localStorage.setItem(`dashboard-visited-${userId}`, 'true');
       }
     }
-  }, [user]);
+  }, [userId, isLoaded, navigate]);
+  
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
+  if (!userId) {
+    return null; // Will redirect in the useEffect
+  }
   
   return (
     <div className="flex h-screen overflow-hidden">

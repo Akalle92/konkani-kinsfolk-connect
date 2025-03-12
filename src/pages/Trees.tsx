@@ -1,8 +1,9 @@
+
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from "@/contexts/auth/hooks";
+import { useAuth } from "@clerk/clerk-react";
 import { useToast } from '@/hooks/use-toast';
 import { TreesHeader } from '@/components/trees/TreesHeader';
 import { TreesLoading } from '@/components/trees/TreesLoading';
@@ -42,31 +43,31 @@ const EmptyTreesState = () => (
 );
 
 const Trees = () => {
-  const { user, userRole, loading: authLoading } = useAuth();
+  const { userId, isLoaded } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [localLoading, setLocalLoading] = useState(true);
 
   useEffect(() => {
-    if (!authLoading) {
+    if (isLoaded) {
       setLocalLoading(false);
     }
-  }, [authLoading]);
+  }, [isLoaded]);
 
   const { data: trees, isLoading: treesLoading, error, isFetching } = useQuery({
     queryKey: ['trees'],
     queryFn: async () => {
-      if (!user?.id) {
+      if (!userId) {
         console.log('No user found in queryFn');
         throw new Error('User not authenticated');
       }
       
-      console.log('Fetching trees for user:', user.id);
+      console.log('Fetching trees for user:', userId);
       
       const { data, error } = await supabase
         .from('family_trees')
         .select('*')
-        .eq('owner_id', user.id)
+        .eq('owner_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -77,12 +78,12 @@ const Trees = () => {
       console.log('Fetched trees:', data);
       return data || [];
     },
-    enabled: !!user?.id, // Only run the query when user is available
+    enabled: !!userId, // Only run the query when user is available
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
   });
 
-  if (authLoading || localLoading) {
+  if (!isLoaded || localLoading) {
     console.log('Showing loading state because auth is loading or local loading is true');
     return <TreesLoading />;
   }
@@ -95,8 +96,8 @@ const Trees = () => {
   return (
     <div className="container mx-auto p-6 animate-page-enter">
       <TreesHeader 
-        userId={user?.id} 
-        isAdmin={userRole?.role === 'admin'} 
+        userId={userId} 
+        isAdmin={false} // We'll need to update this to use Clerk's role system
       />
       
       {treesLoading ? (
